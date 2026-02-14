@@ -2,13 +2,15 @@
 import MobileHeader from "../components/MobileHeader";
 import MobileTabs from "../components/MobileTabs";
 
-const devices = [
-  { id: "HB-901", plate: "29A-12345", status: "Đang hoạt động" },
-  { id: "HB-902", plate: "43B-55678", status: "Mất tín hiệu" },
-  { id: "HB-903", plate: "51C-90876", status: "Bảo trì" },
+const stats = [
+  { htx: "HTX1", drivers: 32, vehicles: 18, docs: 74 },
+  { htx: "HTX2", drivers: 24, vehicles: 15, docs: 60 },
+  { htx: "HTX3", drivers: 18, vehicles: 10, docs: 45 },
+  { htx: "HTX4", drivers: 27, vehicles: 14, docs: 52 },
+  { htx: "HTX5", drivers: 12, vehicles: 8, docs: 29 },
 ];
 
-export default function TrackerPage() {
+export default function HtxStatsPage() {
   const [activeDot, setActiveDot] = useState(0);
   const sectionRefs = [useRef<HTMLElement | null>(null), useRef<HTMLElement | null>(null)];
 
@@ -42,35 +44,31 @@ export default function TrackerPage() {
     <div className="app-shell">
       <MobileHeader scrollDots={{ count: 2, activeIndex: activeDot }} />
       <section className="page-title">
-        <h2>Hộp đen định vị</h2>
-        <p>Thiết bị định vị theo phương tiện</p>
+        <h2>Thống kê theo HTX</h2>
+        <p>Tổng hợp tài xế, xe và giấy tờ</p>
       </section>
 
       <section ref={sectionRefs[0]} className="list">
-        {devices.map((d) => (
-          <div key={d.id} className="list-card">
-            <div className="list-title">{d.id}</div>
-            <div className="list-sub">Xe: {d.plate}</div>
-            <div className="list-meta">Trạng thái: {d.status}</div>
+        {stats.map((s) => (
+          <div key={s.htx} className="list-card">
+            <div className="list-title">{s.htx}</div>
+            <div className="list-sub">Tài xế: {s.drivers}</div>
+            <div className="list-meta">Xe: {s.vehicles} • Giấy tờ: {s.docs}</div>
           </div>
         ))}
       </section>
 
       <section ref={sectionRefs[1]} className="form-card">
-        <div className="form-title">Đăng ký thiết bị</div>
+        <div className="form-title">Bộ lọc thống kê</div>
         <label>
-          Mã thiết bị
-          <input placeholder="HB-904" />
+          HTX
+          <input placeholder="HTX1" />
         </label>
         <label>
-          Biển số xe
-          <input placeholder="30A-99999" />
+          Khoảng thời gian
+          <input placeholder="01/01/2025 - 31/12/2025" />
         </label>
-        <label>
-          Ghi chú
-          <textarea rows={3} placeholder="Tình trạng thiết bị" />
-        </label>
-        <button className="primary full">Lưu thiết bị</button>
+        <button className="primary full">Áp dụng</button>
       </section>
 
       <MobileTabs />

@@ -1,31 +1,35 @@
 ﻿import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { asset } from "../assets";
 
 const tabs = [
   {
     to: "/drivers",
     label: "Tài xế",
-    sub: "Quản lý hồ sơ",
-    icon: "/assets/2.png",
+    sub: "Quản lý HS",
+    icon: asset("2.png"),
   },
   {
     to: "/vehicles",
     label: "Xe",
     sub: "Pháp lý xe",
-    icon: "/assets/3.png",
+    icon: asset("3.png"),
   },
   {
     to: "/documents",
     label: "Giấy tờ",
     sub: "Phù hiệu, bảo hiểm",
-    icon: "/assets/5.png",
+    icon: asset("5.png"),
   },
 ];
 
 const moreItems = [
-  { label: "Lệnh vận chuyển", icon: "/assets/4.png", to: "/more/transport" },
-  { label: "Hộp đen định vị", icon: "/assets/6.png", to: "/more/tracker" },
-  { label: "VETC", icon: "/assets/7.png", to: "/more/vetc" },
+  { label: "Lệnh vận chuyển", icon: asset("4.png"), to: "/more/transport" },
+  { label: "Hộp đen định vị", icon: asset("6.png"), to: "/more/tracker" },
+  { label: "VETC", icon: asset("7.png"), to: "/more/vetc" },
+  { label: "Đăng ký thêm HTX", icon: asset("more-plus.svg"), to: "/more/register" },
+  { label: "Liên hệ", icon: asset("more-contact.svg"), to: "/more/contact" },
+  { label: "Thống kê theo HTX", icon: asset("more-stats.svg"), to: "/more/stats" },
 ];
 
 export default function MobileTabs() {

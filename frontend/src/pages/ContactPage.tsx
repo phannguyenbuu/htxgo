@@ -2,13 +2,7 @@
 import MobileHeader from "../components/MobileHeader";
 import MobileTabs from "../components/MobileTabs";
 
-const devices = [
-  { id: "HB-901", plate: "29A-12345", status: "Đang hoạt động" },
-  { id: "HB-902", plate: "43B-55678", status: "Mất tín hiệu" },
-  { id: "HB-903", plate: "51C-90876", status: "Bảo trì" },
-];
-
-export default function TrackerPage() {
+export default function ContactPage() {
   const [activeDot, setActiveDot] = useState(0);
   const sectionRefs = [useRef<HTMLElement | null>(null), useRef<HTMLElement | null>(null)];
 
@@ -42,35 +36,32 @@ export default function TrackerPage() {
     <div className="app-shell">
       <MobileHeader scrollDots={{ count: 2, activeIndex: activeDot }} />
       <section className="page-title">
-        <h2>Hộp đen định vị</h2>
-        <p>Thiết bị định vị theo phương tiện</p>
+        <h2>Liên hệ</h2>
+        <p>Thông tin hỗ trợ và phản hồi</p>
       </section>
 
-      <section ref={sectionRefs[0]} className="list">
-        {devices.map((d) => (
-          <div key={d.id} className="list-card">
-            <div className="list-title">{d.id}</div>
-            <div className="list-sub">Xe: {d.plate}</div>
-            <div className="list-meta">Trạng thái: {d.status}</div>
-          </div>
-        ))}
+      <section ref={sectionRefs[0]} className="form-card">
+        <div className="form-title">Gửi phản hồi</div>
+        <label>
+          Họ và tên
+          <input placeholder="Nguyễn Văn B" />
+        </label>
+        <label>
+          Email
+          <input placeholder="ban@example.com" />
+        </label>
+        <label>
+          Nội dung
+          <textarea rows={3} placeholder="Nội dung phản hồi" />
+        </label>
+        <button className="primary full">Gửi phản hồi</button>
       </section>
 
       <section ref={sectionRefs[1]} className="form-card">
-        <div className="form-title">Đăng ký thiết bị</div>
-        <label>
-          Mã thiết bị
-          <input placeholder="HB-904" />
-        </label>
-        <label>
-          Biển số xe
-          <input placeholder="30A-99999" />
-        </label>
-        <label>
-          Ghi chú
-          <textarea rows={3} placeholder="Tình trạng thiết bị" />
-        </label>
-        <button className="primary full">Lưu thiết bị</button>
+        <div className="form-title">Thông tin liên hệ</div>
+        <div className="list-row">Email: support@htxgo.vn</div>
+        <div className="list-row">Địa chỉ: Hà Nội, Việt Nam</div>
+        <div className="list-row">Giờ làm việc: 8:00 - 18:00</div>
       </section>
 
       <MobileTabs />

@@ -2,13 +2,7 @@
 import MobileHeader from "../components/MobileHeader";
 import MobileTabs from "../components/MobileTabs";
 
-const devices = [
-  { id: "HB-901", plate: "29A-12345", status: "Đang hoạt động" },
-  { id: "HB-902", plate: "43B-55678", status: "Mất tín hiệu" },
-  { id: "HB-903", plate: "51C-90876", status: "Bảo trì" },
-];
-
-export default function TrackerPage() {
+export default function RegisterHtxPage() {
   const [activeDot, setActiveDot] = useState(0);
   const sectionRefs = [useRef<HTMLElement | null>(null), useRef<HTMLElement | null>(null)];
 
@@ -42,35 +36,41 @@ export default function TrackerPage() {
     <div className="app-shell">
       <MobileHeader scrollDots={{ count: 2, activeIndex: activeDot }} />
       <section className="page-title">
-        <h2>Hộp đen định vị</h2>
-        <p>Thiết bị định vị theo phương tiện</p>
+        <h2>Đăng ký thêm HTX</h2>
+        <p>Khởi tạo hồ sơ hợp tác xã mới</p>
       </section>
 
-      <section ref={sectionRefs[0]} className="list">
-        {devices.map((d) => (
-          <div key={d.id} className="list-card">
-            <div className="list-title">{d.id}</div>
-            <div className="list-sub">Xe: {d.plate}</div>
-            <div className="list-meta">Trạng thái: {d.status}</div>
-          </div>
-        ))}
+      <section ref={sectionRefs[0]} className="form-card">
+        <div className="form-title">Thông tin HTX</div>
+        <label>
+          Tên HTX
+          <input placeholder="HTX Vận tải An Bình" />
+        </label>
+        <label>
+          Mã số thuế
+          <input placeholder="0109999999" />
+        </label>
+        <label>
+          Địa chỉ
+          <input placeholder="Quận 1, TP.HCM" />
+        </label>
       </section>
 
       <section ref={sectionRefs[1]} className="form-card">
-        <div className="form-title">Đăng ký thiết bị</div>
+        <div className="form-title">Người đại diện</div>
         <label>
-          Mã thiết bị
-          <input placeholder="HB-904" />
+          Họ và tên
+          <input placeholder="Nguyễn Văn A" />
         </label>
         <label>
-          Biển số xe
-          <input placeholder="30A-99999" />
+          SĐT
+          <input placeholder="0909 111 222" />
         </label>
         <label>
-          Ghi chú
-          <textarea rows={3} placeholder="Tình trạng thiết bị" />
+          Email
+          <input placeholder="contact@htx.vn" />
         </label>
-        <button className="primary full">Lưu thiết bị</button>
+        <button className="primary full">Gửi đăng ký</button>
       </section>
 
       <MobileTabs />

@@ -1,5 +1,8 @@
-﻿import MobileHeader from "../components/MobileHeader";
+﻿import { useEffect, useRef, useState } from "react";
+import MobileHeader from "../components/MobileHeader";
 import MobileTabs from "../components/MobileTabs";
+import ImageModal from "../components/ImageModal";
+import { asset } from "../assets";
 
 const docs = [
   {
@@ -20,11 +23,45 @@ const docs = [
 ];
 
 export default function DashboardPage() {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [activeDot, setActiveDot] = useState(0);
+  const sectionRefs = [
+    useRef<HTMLElement | null>(null),
+    useRef<HTMLElement | null>(null),
+    useRef<HTMLElement | null>(null),
+  ];
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) {
+          const index = Number(visible[0].target.getAttribute("data-index"));
+          if (!Number.isNaN(index)) {
+            setActiveDot(index);
+          }
+        }
+      },
+      { threshold: [0.1], rootMargin: "0px 0px 20% 0px" }
+    );
+
+    sectionRefs.forEach((ref, idx) => {
+      if (ref.current) {
+        ref.current.setAttribute("data-index", String(idx));
+        observer.observe(ref.current);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [sectionRefs]);
+
   return (
     <div className="app-shell">
-      <MobileHeader />
+      <MobileHeader scrollDots={{ count: 3, activeIndex: activeDot }} />
 
-      <section className="hero-card">
+      <section ref={sectionRefs[0]} className="hero-card">
         <div className="hero-icon" />
         <div>
           <div className="hero-title">LLTP KHÁM SỨC KHỎE</div>
@@ -32,7 +69,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="card-stack">
+      <section ref={sectionRefs[1]} className="card-stack">
         {docs.map((d) => (
           <div key={d.title} className="doc-card">
             <div className="doc-title">{d.title}</div>
@@ -40,7 +77,9 @@ export default function DashboardPage() {
               <span>Ngày cấp: {d.issued}</span>
               <span>Hết hạn: {d.expiry}</span>
             </div>
-            <button className="ghost-btn">Xem hình ảnh</button>
+            <button className="ghost-btn" onClick={() => setPreviewOpen(true)}>
+              Xem hình ảnh
+            </button>
           </div>
         ))}
       </section>
@@ -49,8 +88,15 @@ export default function DashboardPage() {
         <button className="primary">Đăng ký HTX</button>
         <button className="outline">Hotline</button>
       </section>
+      <div ref={sectionRefs[2]} className="scroll-sentinel" />
 
       <MobileTabs />
+
+      <ImageModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        src={asset("e0269081ce8b40d5199a.jpg")}
+      />
     </div>
   );
 }
