@@ -3,14 +3,15 @@ import MobileHeader from "../components/MobileHeader";
 import MobileTabs from "../components/MobileTabs";
 
 const orders = [
-  { code: "VC-2401", status: "Đang chạy", route: "Q1 → Q3 (TP.HCM)" },
-  { code: "VC-2402", status: "Chờ duyệt", route: "Q5 → Q7 (TP.HCM)" },
-  { code: "VC-2403", status: "Hoàn tất", route: "Thủ Đức → Bình Thạnh (TP.HCM)" },
+  { code: "VC-2401", route: "[Vận chuyển] Bình Tân > Cần Giờ", price: "132.192" },
+  { code: "VC-2402", route: "[Vận chuyển] Gò Vấp > Bình Tân", price: "31.400" },
+  { code: "VC-2403", route: "[Vận chuyển] Quận 3 > Phú Nhuận", price: "14.148" },
+  { code: "VC-2404", route: "[Vận chuyển] Quận 12 > Thuận An", price: "33.300 + 9.259" },
 ];
 
 export default function TransportOrdersPage() {
   const [activeDot, setActiveDot] = useState(0);
-  const sectionRefs = [useRef<HTMLElement | null>(null), useRef<HTMLElement | null>(null)];
+  const sectionRefs = [useRef<HTMLElement | null>(null)];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -40,7 +41,7 @@ export default function TransportOrdersPage() {
 
   return (
     <div className="app-shell">
-      <MobileHeader scrollDots={{ count: 2, activeIndex: activeDot }} />
+      <MobileHeader scrollDots={{ count: 1, activeIndex: activeDot }} />
       <section className="page-title">
         <h2>Lệnh vận chuyển</h2>
         <p>Phạm vi nội thành TP.HCM</p>
@@ -49,28 +50,10 @@ export default function TransportOrdersPage() {
       <section ref={sectionRefs[0]} className="list">
         {orders.map((o) => (
           <div key={o.code} className="list-card">
-            <div className="list-title">{o.code}</div>
-            <div className="list-sub">Tuyến: {o.route}</div>
-            <div className="list-meta">Trạng thái: {o.status}</div>
+            <div className="list-title">{o.route}</div>
+            <div className="list-sub">Giá {o.price} Nhận đơn ngay!</div>
           </div>
         ))}
-      </section>
-
-      <section ref={sectionRefs[1]} className="form-card">
-        <div className="form-title">Tạo lệnh mới</div>
-        <label>
-          Mã lệnh
-          <input placeholder="VC-2404" />
-        </label>
-        <label>
-          Tuyến đường
-          <input placeholder="Q10 → Q11 (TP.HCM)" />
-        </label>
-        <label>
-          Ghi chú
-          <textarea rows={3} placeholder="Nhập ghi chú vận chuyển" />
-        </label>
-        <button className="primary full">Tạo lệnh</button>
       </section>
 
       <MobileTabs />

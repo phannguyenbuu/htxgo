@@ -1,0 +1,34 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name htxgo.net www.htxgo.net;
+
+    root /var/www/letsencrypt;
+
+    location ^~ /.well-known/acme-challenge/ {
+        default_type "text/plain";
+        allow all;
+        try_files $uri =404;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name htxgo.net www.htxgo.net;
+
+    ssl_certificate     /etc/letsencrypt/live/htxgo.net/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/htxgo.net/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+
+    root /var/www/htxgo;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

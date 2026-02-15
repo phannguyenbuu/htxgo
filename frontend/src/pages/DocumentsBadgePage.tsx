@@ -1,16 +1,10 @@
 ﻿import { useEffect, useRef, useState } from "react";
+import { asset } from "../assets";
+import ImageModal from "../components/ImageModal";
 import MobileHeader from "../components/MobileHeader";
 import MobileTabs from "../components/MobileTabs";
-import ImageModal from "../components/ImageModal";
-import { asset } from "../assets";
 
-const insuranceItems = [
-  { title: "BẢO HIỂM TNDS", expiry: "05/04/2025" },
-  { title: "BẢO HIỂM VẬT CHẤT XE", expiry: "12/01/2024" },
-  { title: "BẢO HIỂM Y TẾ", expiry: "31/12/2024" },
-];
-
-export default function DocumentsPage() {
+export default function DocumentsBadgePage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [activeDot, setActiveDot] = useState(0);
   const sectionRefs = [
@@ -50,7 +44,7 @@ export default function DocumentsPage() {
       <MobileHeader scrollDots={{ count: 3, activeIndex: activeDot }} />
 
       <section className="page-title">
-        <h2>Bảo hiểm</h2>
+        <h2>Phù hiệu</h2>
         <p>Thông tin phù hiệu & giấy xác nhận xã viên</p>
       </section>
 
@@ -85,19 +79,6 @@ export default function DocumentsPage() {
         Xem hình ảnh phù hiệu
       </button>
 
-      <section className="card-stack">
-        {insuranceItems.map((item) => (
-          <div key={item.title} className="doc-card insurance-card">
-            <div className="doc-title">{item.title}</div>
-            <div className="doc-meta">
-              <span>Ngày hết hạn: {item.expiry}</span>
-            </div>
-            <button className="ghost-btn insurance-btn" onClick={() => setPreviewOpen(true)}>
-              Xem hình ảnh
-            </button>
-          </div>
-        ))}
-      </section>
       <div ref={sectionRefs[2]} className="scroll-sentinel" />
 
       <MobileTabs />

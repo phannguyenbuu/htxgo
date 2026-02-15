@@ -39,4 +39,6 @@ export const api = {
   listDrivers: () => request("/drivers"),
   listVehicles: () => request("/vehicles"),
   listDocuments: () => request("/documents"),
+  lookupFines: (licensePlate: string) =>
+    request(`/fines/lookup?licensePlate=${encodeURIComponent(licensePlate)}`),
 };

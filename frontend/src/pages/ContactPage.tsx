@@ -51,6 +51,10 @@ export default function ContactPage() {
           <input placeholder="ban@example.com" />
         </label>
         <label>
+          Số điện thoại liên hệ
+          <input placeholder="09xx xxx xxx" />
+        </label>
+        <label>
           Nội dung
           <textarea rows={3} placeholder="Nội dung phản hồi" />
         </label>
@@ -59,9 +63,15 @@ export default function ContactPage() {
 
       <section ref={sectionRefs[1]} className="form-card">
         <div className="form-title">Thông tin liên hệ</div>
-        <div className="list-row">Email: support@htxgo.vn</div>
-        <div className="list-row">Địa chỉ: Hà Nội, Việt Nam</div>
-        <div className="list-row">Giờ làm việc: 8:00 - 18:00</div>
+        <div className="list-row">📞 THÔNG TIN LIÊN HỆ HỖ TRỢ</div>
+        <div className="list-row">🏢 HTX Minh Vy – Thanh Vy – Kim Thịnh – Nghĩa Phát</div>
+        <div className="list-row">📍 Địa chỉ: Số 09, Đường số 07, KDC Cityland, P. Gò Vấp, TP.HCM</div>
+        <div className="list-row">☎️ Hotline:</div>
+        <div className="list-row">📱 0948.091.091</div>
+        <div className="list-row">📱 0902.57.1972</div>
+        <div className="list-row">📱 0793.911.911</div>
+        <div className="list-row">📱 0777.222.6333</div>
+        <div className="list-row">☎️ 028.36.116.117</div>
       </section>
 
       <MobileTabs />

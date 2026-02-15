@@ -6,6 +6,7 @@ import { asset } from "../assets";
 
 export default function DriversPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState(asset("e0269081ce8b40d5199a.jpg"));
   const [activeDot, setActiveDot] = useState(0);
   const sectionRefs = [
     useRef<HTMLElement | null>(null),
@@ -58,24 +59,6 @@ export default function DriversPage() {
         </div>
       </section>
 
-      <section className="search-bar">
-        <label className="field">
-          Tìm tài xế (tên, SĐT)
-          <input placeholder="Nguyễn Văn A / 0909..." />
-        </label>
-        <label className="field">
-          Hợp tác xã
-          <select>
-            <option>HTX1</option>
-            <option>HTX2</option>
-            <option>HTX3</option>
-            <option>HTX4</option>
-            <option>HTX5</option>
-            <option>HTX-virtual</option>
-          </select>
-        </label>
-      </section>
-
       <section ref={sectionRefs[0]} className="info-card">
         <div className="info-head">
           <span className="info-icon">👤</span>
@@ -118,7 +101,13 @@ export default function DriversPage() {
             <span>Ngày cấp: 03/05/2023</span>
             <span>Hết hạn: 03/05/2025</span>
           </div>
-          <button className="ghost-btn" onClick={() => setPreviewOpen(true)}>
+          <button
+            className="ghost-btn"
+            onClick={() => {
+              setPreviewSrc(asset("e0269081ce8b40d5199a.jpg"));
+              setPreviewOpen(true);
+            }}
+          >
             Xem hình ảnh
           </button>
         </div>
@@ -128,7 +117,13 @@ export default function DriversPage() {
             <span>Ngày cấp: 10/02/2022</span>
             <span>Hết hạn: 10/02/2024</span>
           </div>
-          <button className="ghost-btn" onClick={() => setPreviewOpen(true)}>
+          <button
+            className="ghost-btn"
+            onClick={() => {
+              setPreviewSrc(asset("e0269081ce8b40d5199a.jpg"));
+              setPreviewOpen(true);
+            }}
+          >
             Xem hình ảnh
           </button>
         </div>
@@ -138,13 +133,25 @@ export default function DriversPage() {
             <span>Ngày cấp: 12/06/2023</span>
             <span>Hết hạn: 12/06/2025</span>
           </div>
-          <button className="ghost-btn" onClick={() => setPreviewOpen(true)}>
+          <button
+            className="ghost-btn"
+            onClick={() => {
+              setPreviewSrc(asset("phiet_kqxn.jpg"));
+              setPreviewOpen(true);
+            }}
+          >
             Xem hình ảnh
           </button>
         </div>
       </section>
 
-      <button className="primary full" onClick={() => setPreviewOpen(true)}>
+      <button
+        className="primary full"
+        onClick={() => {
+          setPreviewSrc(asset("e0269081ce8b40d5199a.jpg"));
+          setPreviewOpen(true);
+        }}
+      >
         Xem hình ảnh hồ sơ
       </button>
       <div ref={sectionRefs[2]} className="scroll-sentinel" />
@@ -154,7 +161,7 @@ export default function DriversPage() {
       <ImageModal
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        src={asset("e0269081ce8b40d5199a.jpg")}
+        src={previewSrc}
       />
     </div>
   );

@@ -25,9 +25,8 @@ const tabs = [
 
 const moreItems = [
   { label: "Lệnh vận chuyển", icon: asset("4.png"), to: "/more/transport" },
-  { label: "Hộp đen định vị", icon: asset("6.png"), to: "/more/tracker" },
+  { label: "Tra cứu phạt nguội", icon: asset("8.png"), to: "/more/phat-nguoi" },
   { label: "VETC", icon: asset("7.png"), to: "/more/vetc" },
-  { label: "Đăng ký thêm HTX", icon: asset("more-plus.svg"), to: "/more/register" },
   { label: "Liên hệ", icon: asset("more-contact.svg"), to: "/more/contact" },
   { label: "Thống kê theo HTX", icon: asset("more-stats.svg"), to: "/more/stats" },
 ];
@@ -36,9 +35,11 @@ export default function MobileTabs() {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
 
   function go(to: string) {
     setOpen(false);
+    setDocsOpen(false);
     navigate(to);
   }
 
@@ -46,7 +47,22 @@ export default function MobileTabs() {
     <>
       <div className="tabs">
         {tabs.map((t) => {
-          const active = location.pathname === t.to;
+          const active = t.to === "/documents"
+            ? location.pathname.startsWith("/documents")
+            : location.pathname === t.to;
+
+          if (t.to === "/documents") {
+            return (
+              <button key={t.to} className={active ? "tab active" : "tab"} onClick={() => setDocsOpen(true)}>
+                <img src={t.icon} alt="" className="tab-icon-img" />
+                <div className="tab-text">
+                  <div className="tab-label">{t.label}</div>
+                  <div className="tab-sub">{t.sub}</div>
+                </div>
+              </button>
+            );
+          }
+
           return (
             <Link key={t.to} to={t.to} className={active ? "tab active" : "tab"}>
               <img src={t.icon} alt="" className="tab-icon-img" />
@@ -61,8 +77,7 @@ export default function MobileTabs() {
         <button className={open ? "tab active" : "tab"} onClick={() => setOpen(true)}>
           <div className="tab-ellipsis">...</div>
           <div className="tab-text">
-            <div className="tab-label">Tùy chọn</div>
-            <div className="tab-sub">Menu nhanh</div>
+            <div className="tab-label">Dịch vụ khác</div>
           </div>
         </button>
       </div>
@@ -70,7 +85,13 @@ export default function MobileTabs() {
       {open && (
         <div className="modal-backdrop" onClick={() => setOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-title">Tùy chọn nhanh</div>
+            <div className="modal-head">
+              <div className="modal-title">Tùy chọn nhanh</div>
+              <button className="close-circle-btn" onClick={() => setOpen(false)} aria-label="Đóng tùy chọn">
+                <span className="close-line" />
+                <span className="close-line close-line-2" />
+              </button>
+            </div>
             <div className="modal-list">
               {moreItems.map((item) => (
                 <button key={item.label} className="modal-row" onClick={() => go(item.to)}>
@@ -78,6 +99,30 @@ export default function MobileTabs() {
                   <div className="modal-row-text">{item.label}</div>
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {docsOpen && (
+        <div className="modal-backdrop" onClick={() => setDocsOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <div className="modal-title">Giấy tờ</div>
+              <button className="close-circle-btn" onClick={() => setDocsOpen(false)} aria-label="Đóng giấy tờ">
+                <span className="close-line" />
+                <span className="close-line close-line-2" />
+              </button>
+            </div>
+            <div className="modal-list">
+              <button className="modal-row" onClick={() => go("/documents/phu-hieu")}>
+                <img src={asset("5.png")} alt="" className="modal-row-icon" />
+                <div className="modal-row-text">Phù hiệu</div>
+              </button>
+              <button className="modal-row" onClick={() => go("/documents/bao-hiem")}>
+                <img src={asset("tab-insurance.svg")} alt="" className="modal-row-icon" />
+                <div className="modal-row-text">Bảo hiểm</div>
+              </button>
             </div>
           </div>
         </div>
