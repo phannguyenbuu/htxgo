@@ -13,8 +13,6 @@ type MobileHeaderProps = {
   scrollDots?: ScrollDotsProps;
 };
 
-const QR_ICON_URL = "https://www.svgrepo.com/show/490299/qr-code.svg";
-
 export default function MobileHeader({ scrollDots: _scrollDots }: MobileHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,7 +41,7 @@ export default function MobileHeader({ scrollDots: _scrollDots }: MobileHeaderPr
         </button>
         <div className="topbar-right">
           <button className="icon-btn qr-icon-btn" aria-label="Quét QR" onClick={() => setQrOpen(true)}>
-            <img src={QR_ICON_URL} alt="" className="qr-icon" />
+            <img src={asset("QR.png")} alt="" className="qr-icon" />
           </button>
           <button className="notif notif-btn" aria-label="Thông báo lệnh phạt" onClick={() => setNotifOpen(true)}>
             <span className="bell" />
