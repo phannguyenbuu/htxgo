@@ -69,6 +69,7 @@ body {
 .brand-title {
   font-weight: 700;
   letter-spacing: 0.4px;
+  color: #dc2626;
 }
 
 .brand-sub {
@@ -1077,10 +1078,27 @@ textarea {
 }
 
 .home-shell {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  padding-bottom: 24px;
+}
+
+.home-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
   background-image: url("/background.jpg");
   background-repeat: no-repeat;
-  background-position: top center;
+  background-position: center top;
   background-size: cover;
+  z-index: -1;
+}
+
+.home-center-zone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .home-primary-grid {
@@ -1088,6 +1106,7 @@ textarea {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-bottom: 10px;
+  margin-top: 0;
 }
 
 .home-service-grid {
@@ -1165,23 +1184,6 @@ textarea {
   text-overflow: ellipsis;
 }
 
-.home-bottom-zone {
-  min-height: 110px;
-  display: grid;
-  align-content: end;
-  justify-items: center;
-  padding-bottom: 100px;
-}
-
-.home-bottom-hotline {
-  color: #dc2626;
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  position: relative;
-  top: 100px;
-}
-
 @keyframes homeFlyIn {
   0% {
     opacity: 0;
@@ -1193,5 +1195,178 @@ textarea {
     transform: translateY(0) scale(1);
     filter: blur(0);
   }
+}
+
+.docs-block-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: var(--panel-gap);
+}
+
+.docs-block {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(246, 249, 255, 0.58)) padding-box,
+    linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(168, 176, 192, 0.45), rgba(255, 255, 255, 0.72)) border-box;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow:
+    0 12px 30px rgba(44, 47, 56, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  display: grid;
+  gap: 8px;
+}
+
+.docs-block-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.docs-pair-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #e9edf4;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.docs-pair-row strong {
+  color: var(--text);
+  text-align: right;
+  font-weight: 600;
+}
+
+.docs-status-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ins-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ins-summary-card {
+  border-radius: 8px;
+  padding: 8px 6px;
+  color: #ffffff;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.ins-summary-red {
+  background: linear-gradient(180deg, #ff3b30, #e11d2d);
+}
+
+.ins-summary-orange {
+  background: linear-gradient(180deg, #fb923c, #f97316);
+}
+
+.ins-summary-green {
+  background: linear-gradient(180deg, #34d399, #16a34a);
+}
+
+.ins-summary-count {
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ins-summary-label {
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ins-card-stack {
+  display: grid;
+  gap: 10px;
+  margin-bottom: var(--panel-gap);
+}
+
+.ins-detail-card {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e8ecf2;
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.ins-detail-title {
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ins-detail-title.danger {
+  color: #ef4444;
+}
+
+.ins-detail-title.warning {
+  color: #f97316;
+}
+
+.ins-detail-title.safe {
+  color: #16a34a;
+}
+
+.ins-detail-row {
+  font-size: 13px;
+  line-height: 1.2;
+  color: #2d3646;
+}
+
+.ins-detail-line {
+  height: 1px;
+  background: #ebeff4;
+}
+
+.text-danger {
+  color: #dc2626;
+}
+
+.text-warning {
+  color: #ea580c;
+}
+
+.text-safe {
+  color: #15803d;
+}
+
+.ins-action-btn {
+  border: 1px solid #d9dfe8;
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ins-action-btn.ins-action-danger {
+  border: none;
+  background: linear-gradient(180deg, #ff3b30, #e11d2d);
+  color: #ffffff;
+}
+
+.ins-arrow {
+  font-size: 18px;
+  line-height: 1;
+  margin-left: 2px;
 }
 

@@ -1,4 +1,4 @@
-﻿import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { api } from "../api";
 import MobileHeader from "../components/MobileHeader";
 import MobileTabs from "../components/MobileTabs";
@@ -17,24 +17,18 @@ type LookupResponse = {
 };
 
 export default function FinesLookupPage() {
-  const [plate, setPlate] = useState("50E57390");
+  const plate = "50E57390";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<LookupResponse | null>(null);
 
-  async function onLookup(e: FormEvent) {
-    e.preventDefault();
+  async function onLookup() {
     setError("");
     setResult(null);
 
-    if (!plate.trim()) {
-      setError("Vui lòng nhập biển số.");
-      return;
-    }
-
     setLoading(true);
     try {
-      const body = (await api.lookupFines(plate.replace(/\s+/g, ""))) as LookupResponse;
+      const body = (await api.lookupFines(plate)) as LookupResponse;
       setResult(body);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Có lỗi xảy ra khi tra cứu.");
@@ -53,20 +47,13 @@ export default function FinesLookupPage() {
       </section>
 
       <section className="form-card">
-        <div className="form-title">Nhập biển số</div>
-        <form onSubmit={onLookup}>
-          <label>
-            Biển số xe
-            <input
-              value={plate}
-              onChange={(e) => setPlate(e.target.value.toUpperCase())}
-              placeholder="VD: 30H47465"
-            />
-          </label>
-          <button className="primary full" type="submit" disabled={loading}>
-            {loading ? "Đang tra cứu..." : "Tra cứu"}
-          </button>
-        </form>
+        <div className="form-title">Biển số đang quản lý</div>
+        <div className="list-row">
+          Biển số xe: <strong>{plate}</strong>
+        </div>
+        <button className="primary full" type="button" onClick={onLookup} disabled={loading}>
+          {loading ? "Đang tra cứu..." : "Tra cứu ngay"}
+        </button>
         {error && <div className="error">{error}</div>}
       </section>
 

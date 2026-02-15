@@ -28,7 +28,6 @@ const moreItems = [
   { label: "Tra cứu phạt nguội", icon: asset("8.png"), to: "/more/phat-nguoi" },
   { label: "VETC", icon: asset("7.png"), to: "/more/vetc" },
   { label: "Liên hệ", icon: asset("more-contact.svg"), to: "/more/contact" },
-  { label: "Thống kê theo HTX", icon: asset("more-stats.svg"), to: "/more/stats" },
 ];
 
 export default function MobileTabs() {
@@ -108,20 +107,20 @@ export default function MobileTabs() {
         <div className="modal-backdrop" onClick={() => setDocsOpen(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <div className="modal-title">Giấy tờ</div>
+              <div className="modal-title">Giấy tờ xe + bảo hiểm</div>
               <button className="close-circle-btn" onClick={() => setDocsOpen(false)} aria-label="Đóng giấy tờ">
                 <span className="close-line" />
                 <span className="close-line close-line-2" />
               </button>
             </div>
-            <div className="modal-list">
-              <button className="modal-row" onClick={() => go("/documents/phu-hieu")}>
-                <img src={asset("5.png")} alt="" className="modal-row-icon" />
-                <div className="modal-row-text">Phù hiệu</div>
+            <div className="modal-grid">
+              <button className="modal-card" onClick={() => go("/documents/phu-hieu")}>
+                <img src={asset("5.png")} alt="" className="modal-icon" />
+                <div className="modal-label">Phù hiệu</div>
               </button>
-              <button className="modal-row" onClick={() => go("/documents/bao-hiem")}>
-                <img src={asset("tab-insurance.svg")} alt="" className="modal-row-icon" />
-                <div className="modal-row-text">Bảo hiểm</div>
+              <button className="modal-card" onClick={() => go("/documents/bao-hiem")}>
+                <img src={asset("tab-insurance.svg")} alt="" className="modal-icon" />
+                <div className="modal-label">Bảo hiểm</div>
               </button>
             </div>
           </div>
