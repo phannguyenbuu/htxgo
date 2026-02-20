@@ -176,7 +176,6 @@
           <button class="tab-btn" type="button" data-tab="users">Users</button>
           <button class="tab-btn" type="button" data-tab="drivers">Drivers</button>
           <button class="tab-btn" type="button" data-tab="vehicles">Vehicles</button>
-          <button class="tab-btn" type="button" data-tab="documents">Documents</button>
           <button class="tab-btn" type="button" data-tab="units">Units</button>
           <button class="tab-btn" type="button" data-tab="notifications">Notifications</button>
         </aside>
@@ -187,7 +186,6 @@
         <button class="tab-btn" type="button" data-tab="users">Users</button>
         <button class="tab-btn" type="button" data-tab="drivers">Drivers</button>
         <button class="tab-btn" type="button" data-tab="vehicles">Vehicles</button>
-        <button class="tab-btn" type="button" data-tab="documents">Documents</button>
         <button class="tab-btn" type="button" data-tab="units">Units</button>
         <button class="tab-btn" type="button" data-tab="notifications">Notifications</button>
       </section>
@@ -233,6 +231,21 @@
           <button class="tiny-btn primary" type="submit">Thêm tài xế</button>
         </form>
         <table id="table-drivers"></table>
+
+        <div class="table-head" style="margin-top: 14px;">
+          <h2>Giấy tờ tài xế</h2>
+          <input class="search" id="search-driver-documents" placeholder="Lọc giấy tờ tài xế..." />
+        </div>
+        <form class="crud-form" id="form-driver-documents">
+          <input class="tiny-input" name="title" placeholder="Tiêu đề" required />
+          <input class="tiny-input" name="doc_type" placeholder="Loại" />
+          <input class="tiny-input" name="number" placeholder="Số" />
+          <input class="tiny-input" name="issued_date" placeholder="YYYY-MM-DD" />
+          <input class="tiny-input" name="expiry_date" placeholder="YYYY-MM-DD" />
+          <input class="tiny-input" name="driver_id" placeholder="driver_id" required />
+          <button class="tiny-btn primary" type="submit">Thêm giấy tờ tài xế</button>
+        </form>
+        <table id="table-driver-documents"></table>
       </section>
 
       <section class="table-wrap tab-pane" data-pane="vehicles">
@@ -249,24 +262,21 @@
           <button class="tiny-btn primary" type="submit">Thêm xe</button>
         </form>
         <table id="table-vehicles"></table>
-      </section>
 
-      <section class="table-wrap tab-pane" data-pane="documents">
-        <div class="table-head">
-          <h2>Giấy tờ</h2>
-          <input class="search" id="search-documents" placeholder="Lọc giấy tờ..." />
+        <div class="table-head" style="margin-top: 14px;">
+          <h2>Giấy tờ xe</h2>
+          <input class="search" id="search-vehicle-documents" placeholder="Lọc giấy tờ xe..." />
         </div>
-        <form class="crud-form" id="form-documents">
+        <form class="crud-form" id="form-vehicle-documents">
           <input class="tiny-input" name="title" placeholder="Tiêu đề" required />
           <input class="tiny-input" name="doc_type" placeholder="Loại" />
           <input class="tiny-input" name="number" placeholder="Số" />
           <input class="tiny-input" name="issued_date" placeholder="YYYY-MM-DD" />
           <input class="tiny-input" name="expiry_date" placeholder="YYYY-MM-DD" />
-          <input class="tiny-input" name="driver_id" placeholder="driver_id" />
-          <input class="tiny-input" name="vehicle_id" placeholder="vehicle_id" />
-          <button class="tiny-btn primary" type="submit">Thêm giấy tờ</button>
+          <input class="tiny-input" name="vehicle_id" placeholder="vehicle_id" required />
+          <button class="tiny-btn primary" type="submit">Thêm giấy tờ xe</button>
         </form>
-        <table id="table-documents"></table>
+        <table id="table-vehicle-documents"></table>
       </section>
 
       <section class="table-wrap tab-pane" data-pane="units">
@@ -519,7 +529,7 @@
           await refreshAll();
         });
 
-        document.getElementById('form-documents').addEventListener('submit', async (e) => {
+        document.getElementById('form-driver-documents').addEventListener('submit', async (e) => {
           e.preventDefault();
           const f = new FormData(e.target);
           await api('/api/documents', 'POST', {
@@ -528,8 +538,24 @@
             number: f.get('number') || null,
             issued_date: f.get('issued_date') || null,
             expiry_date: f.get('expiry_date') || null,
-            driver_id: f.get('driver_id') ? Number(f.get('driver_id')) : null,
-            vehicle_id: f.get('vehicle_id') ? Number(f.get('vehicle_id')) : null,
+            driver_id: Number(f.get('driver_id')),
+            vehicle_id: null,
+          });
+          e.target.reset();
+          await refreshAll();
+        });
+
+        document.getElementById('form-vehicle-documents').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          await api('/api/documents', 'POST', {
+            title: f.get('title'),
+            doc_type: f.get('doc_type') || null,
+            number: f.get('number') || null,
+            issued_date: f.get('issued_date') || null,
+            expiry_date: f.get('expiry_date') || null,
+            driver_id: null,
+            vehicle_id: Number(f.get('vehicle_id')),
           });
           e.target.reset();
           await refreshAll();
@@ -633,12 +659,21 @@
             { label: 'Actions', get: (r) => actionButtons(`editVehicle(${r.id})`, `deleteVehicle(${r.id})`) },
           ]);
 
-          wireSearch('search-documents', 'table-documents', dataset.documents || [], [
+          wireSearch('search-driver-documents', 'table-driver-documents', (dataset.documents || []).filter((d) => d.driver_id), [
             { label: 'ID', get: (r) => r.id },
             { label: 'Tiêu đề', get: (r) => r.title },
             { label: 'Loại', get: (r) => r.doc_type || '-' },
             { label: 'Số', get: (r) => r.number || '-' },
             { label: 'Tài xế', get: (r) => r.driver_name || '-' },
+            { label: 'Hết hạn', get: (r) => r.expiry_date || '-' },
+            { label: 'Actions', get: (r) => actionButtons(`editDocument(${r.id})`, `deleteDocument(${r.id})`) },
+          ]);
+
+          wireSearch('search-vehicle-documents', 'table-vehicle-documents', (dataset.documents || []).filter((d) => d.vehicle_id), [
+            { label: 'ID', get: (r) => r.id },
+            { label: 'Tiêu đề', get: (r) => r.title },
+            { label: 'Loại', get: (r) => r.doc_type || '-' },
+            { label: 'Số', get: (r) => r.number || '-' },
             { label: 'Xe', get: (r) => r.vehicle_plate || '-' },
             { label: 'Hết hạn', get: (r) => r.expiry_date || '-' },
             { label: 'Actions', get: (r) => actionButtons(`editDocument(${r.id})`, `deleteDocument(${r.id})`) },
