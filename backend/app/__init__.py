@@ -28,6 +28,7 @@ def create_app():
     from .routes.vehicles import bp as vehicles_bp
     from .routes.documents import bp as documents_bp
     from .routes.fines import bp as fines_bp
+    from .routes.admin import api_bp as admin_api_bp, ui_bp as admin_ui_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(units_bp, url_prefix="/api/units")
@@ -35,5 +36,7 @@ def create_app():
     app.register_blueprint(vehicles_bp, url_prefix="/api/vehicles")
     app.register_blueprint(documents_bp, url_prefix="/api/documents")
     app.register_blueprint(fines_bp, url_prefix="/api/fines")
+    app.register_blueprint(admin_api_bp, url_prefix="/api/admin")
+    app.register_blueprint(admin_ui_bp, url_prefix="/admin")
 
     return app

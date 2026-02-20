@@ -26,7 +26,7 @@ const tabs = [
 const moreItems = [
   { label: "Lệnh vận chuyển", icon: asset("4.png"), to: "/more/transport" },
   { label: "Tra cứu phạt nguội", icon: asset("8.png"), to: "/more/phat-nguoi" },
-  { label: "VETC", icon: asset("7.png"), to: "/more/vetc" },
+  { label: "Trợ lý AI Vyca", icon: asset("7.png"), to: "/more/vetc" },
   { label: "Liên hệ", icon: asset("more-contact.svg"), to: "/more/contact" },
 ];
 

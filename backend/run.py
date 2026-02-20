@@ -1,4 +1,6 @@
-﻿from dotenv import load_dotenv
+﻿import os
+
+from dotenv import load_dotenv
 
 from app import create_app
 
@@ -8,4 +10,8 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    host = os.getenv("APP_HOST", "0.0.0.0")
+    port = int(os.getenv("APP_PORT", "8006"))
+    debug = os.getenv("APP_DEBUG", "1").strip().lower() in {"1", "true", "yes", "on"}
+    app.run(host=host, port=port, debug=debug)
+

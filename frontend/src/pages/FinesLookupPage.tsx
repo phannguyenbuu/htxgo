@@ -1,4 +1,5 @@
-import { useState } from "react";
+﻿import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import MobileHeader from "../components/MobileHeader";
 import MobileTabs from "../components/MobileTabs";
@@ -16,19 +17,24 @@ type LookupResponse = {
   violations: Violation[];
 };
 
+function normalizePlate(value: string) {
+  return value.toUpperCase().replace(/[^A-Z0-9.-]/g, "").replace(/\s+/g, "").trim();
+}
+
 export default function FinesLookupPage() {
-  const plate = "50E57390";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [plate, setPlate] = useState(() => normalizePlate(searchParams.get("plate") || "50E57390"));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<LookupResponse | null>(null);
 
-  async function onLookup() {
+  async function lookupByPlate(targetPlate: string) {
     setError("");
     setResult(null);
 
     setLoading(true);
     try {
-      const body = (await api.lookupFines(plate)) as LookupResponse;
+      const body = (await api.lookupFines(targetPlate)) as LookupResponse;
       setResult(body);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Có lỗi xảy ra khi tra cứu.");
@@ -36,6 +42,35 @@ export default function FinesLookupPage() {
       setLoading(false);
     }
   }
+
+  async function onLookup() {
+    const normalized = normalizePlate(plate);
+    if (!normalized) {
+      setError("Vui lòng nhập biển số.");
+      setResult(null);
+      return;
+    }
+
+    setPlate(normalized);
+
+    const queryPlate = normalizePlate(searchParams.get("plate") || "");
+    if (queryPlate !== normalized) {
+      setSearchParams({ plate: normalized });
+      return;
+    }
+
+    await lookupByPlate(normalized);
+  }
+
+  useEffect(() => {
+    const queryPlate = normalizePlate(searchParams.get("plate") || "");
+    if (!queryPlate) {
+      return;
+    }
+
+    setPlate(queryPlate);
+    void lookupByPlate(queryPlate);
+  }, [searchParams]);
 
   return (
     <div className="app-shell">
@@ -47,11 +82,23 @@ export default function FinesLookupPage() {
       </section>
 
       <section className="form-card">
-        <div className="form-title">Biển số đang quản lý</div>
-        <div className="list-row">
-          Biển số xe: <strong>{plate}</strong>
-        </div>
-        <button className="primary full" type="button" onClick={onLookup} disabled={loading}>
+        <div className="form-title">Nhập biển số cần tra cứu</div>
+        <label>
+          Biển số xe
+          <input
+            value={plate}
+            onChange={(e) => setPlate(e.target.value.toUpperCase())}
+            placeholder="VD: 50E57390"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void onLookup();
+              }
+            }}
+          />
+        </label>
+
+        <button className="primary full" type="button" onClick={() => void onLookup()} disabled={loading}>
           {loading ? "Đang tra cứu..." : "Tra cứu ngay"}
         </button>
         {error && <div className="error">{error}</div>}

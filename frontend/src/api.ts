@@ -1,4 +1,7 @@
-﻿const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+﻿const runtimeDefaultApiBase =
+  typeof window !== "undefined" ? `${window.location.origin}/api` : "/api";
+
+const API_BASE = (import.meta.env.VITE_API_BASE || runtimeDefaultApiBase).replace(/\/+$/, "");
 
 export function getToken() {
   return localStorage.getItem("dpaper_token");
@@ -10,6 +13,16 @@ export function setToken(token: string) {
 
 export function clearToken() {
   localStorage.removeItem("dpaper_token");
+}
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
 }
 
 async function request(path: string, options: RequestInit = {}) {
@@ -26,7 +39,7 @@ async function request(path: string, options: RequestInit = {}) {
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error || `Request failed: ${res.status}`);
+    throw new ApiError(body.error || `Request failed: ${res.status}`, res.status);
   }
   return res.json();
 }

@@ -1,0 +1,91 @@
+﻿<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - HTX Go</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --card: rgba(255, 255, 255, 0.08);
+        --line: rgba(255, 255, 255, 0.18);
+        --text: #f8fafc;
+        --muted: #cbd5e1;
+      }
+      * { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 20% 20%, #1e3a8a 0%, transparent 40%),
+          radial-gradient(circle at 80% 0%, #7c3aed 0%, transparent 35%),
+          linear-gradient(160deg, #0f172a 0%, #111827 60%, #030712 100%);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+      }
+      .card {
+        width: min(420px, calc(100% - 32px));
+        background: var(--card);
+        border: 1px solid var(--line);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 24px 70px rgba(2, 6, 23, 0.55);
+      }
+      h1 { margin: 0 0 8px; font-size: 28px; }
+      p { margin: 0 0 18px; color: var(--muted); }
+      label { display: grid; gap: 6px; margin-bottom: 12px; color: var(--muted); font-size: 13px; }
+      input {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-radius: 12px;
+        padding: 11px 12px;
+        font-size: 14px;
+      }
+      input:focus { outline: 2px solid rgba(147, 197, 253, 0.7); border-color: transparent; }
+      button {
+        width: 100%;
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #111827;
+        background: linear-gradient(135deg, #bfdbfe, #c4b5fd, #a5f3fc);
+        cursor: pointer;
+      }
+      .error {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        color: #fecaca;
+        background: rgba(153, 27, 27, 0.38);
+        border: 1px solid rgba(248, 113, 113, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <form class="card" method="post">
+      <h1>Admin Dashboard</h1>
+      <p>Đăng nhập quản trị HTX Go</p>
+
+      {% if error %}
+      <div class="error">{{ error }}</div>
+      {% endif %}
+
+      <label>
+        Username
+        <input name="username" autocomplete="username" required />
+      </label>
+
+      <label>
+        Password
+        <input type="password" name="password" autocomplete="current-password" required />
+      </label>
+
+      <button type="submit">Đăng nhập</button>
+    </form>
+  </body>
+</html>

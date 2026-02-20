@@ -60,6 +60,22 @@ class Document(db.Model):
     vehicle = db.relationship("Vehicle", back_populates="documents")
 
 
+class Notification(db.Model):
+    __tablename__ = "notifications"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(160), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    target_type = db.Column(db.String(16), nullable=False, default="all")  # all|group|driver
+    unit_id = db.Column(db.Integer, db.ForeignKey("units.id"), nullable=True)
+    driver_id = db.Column(db.Integer, db.ForeignKey("drivers.id"), nullable=True)
+    created_by_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    unit = db.relationship("Unit")
+    driver = db.relationship("Driver")
+    created_by_user = db.relationship("User")
+
+
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)

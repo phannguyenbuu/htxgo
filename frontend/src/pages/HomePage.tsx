@@ -13,7 +13,7 @@ const serviceCards = [
   { to: "/documents/phu-hieu", title: "Phù hiệu", image: asset("5.png") },
   { to: "/documents/bao-hiem", title: "Bảo hiểm", image: asset("tab-insurance.svg") },
   { to: "/more/phat-nguoi", title: "Phạt nguội", image: asset("8.png") },
-  { to: "/more/vetc", title: "VETC", image: asset("7.png") },
+  { to: "/more/vetc", title: "Trợ lý AI Vyca", image: asset("7.png") },
   { to: "/more/contact", title: "Liên hệ", image: asset("more-contact.svg") },
 ];
 

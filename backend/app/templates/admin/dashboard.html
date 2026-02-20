@@ -1,0 +1,679 @@
+﻿<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - HTX Go</title>
+    <style>
+      :root {
+        --panel: rgba(15, 23, 42, 0.72);
+        --line: rgba(148, 163, 184, 0.25);
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+      }
+      * { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 10% 0, #1d4ed8 0%, transparent 35%),
+          radial-gradient(circle at 90% 20%, #9333ea 0%, transparent 30%),
+          linear-gradient(140deg, #020617 0%, #0b1120 55%, #1e1b4b 100%);
+      }
+      .shell { width: min(1440px, calc(100% - 32px)); margin: 20px auto 40px; display: grid; gap: 16px; }
+      .hero, .table-wrap, .panel {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel);
+        backdrop-filter: blur(10px);
+      }
+      .hero { padding: 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+      .hero h1 { margin: 0 0 4px; font-size: 28px; }
+      .hero p { margin: 0; color: var(--muted); }
+      .logout {
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #e2e8f0;
+        text-decoration: none;
+        padding: 10px 14px;
+        border-radius: 10px;
+      }
+      .stats { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 12px; }
+      .stat {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: linear-gradient(160deg, rgba(59,130,246,0.22), rgba(15,23,42,0.65));
+        padding: 14px;
+      }
+      .stat .label { color: var(--muted); font-size: 12px; }
+      .stat .value { margin-top: 8px; font-size: 28px; font-weight: 700; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .panel { padding: 12px; }
+      .panel h2 { margin: 0 0 10px; font-size: 16px; }
+      .list { display: grid; gap: 8px; }
+      .row { border: 1px solid rgba(148, 163, 184, 0.24); border-radius: 10px; padding: 9px; display: grid; gap: 2px; }
+      .row strong { font-size: 14px; }
+      .row span { color: var(--muted); font-size: 12px; }
+
+      .table-wrap { padding: 12px; overflow: auto; }
+      .table-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+      .table-head h2 { margin: 0; font-size: 16px; }
+      .search, .tiny-input, .tiny-select {
+        border: 1px solid rgba(148,163,184,0.35);
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.45);
+        color: #e2e8f0;
+        padding: 7px 9px;
+        font-size: 13px;
+      }
+      .search { width: min(260px, 100%); }
+      .crud-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0 12px;
+      }
+      .tiny-btn {
+        border: 1px solid rgba(148,163,184,0.35);
+        border-radius: 8px;
+        padding: 7px 10px;
+        color: #e2e8f0;
+        background: rgba(30, 41, 59, 0.75);
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .tiny-btn.primary { background: linear-gradient(135deg, #2563eb, #4f46e5); border: none; }
+      .tiny-btn.danger { background: linear-gradient(135deg, #b91c1c, #dc2626); border: none; }
+
+      table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      th, td { text-align: left; padding: 8px; border-bottom: 1px solid rgba(148,163,184,0.2); white-space: nowrap; vertical-align: top; }
+      th { color: #bfdbfe; font-weight: 600; }
+      .muted { color: var(--muted); }
+      .actions { display: flex; gap: 6px; }
+      .feedback { margin-top: 4px; color: #fca5a5; font-size: 12px; min-height: 18px; }
+      .ok { color: #86efac; }
+      .main-layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+      .left-nav {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel);
+        backdrop-filter: blur(10px);
+        padding: 10px;
+        display: grid;
+        gap: 8px;
+        position: sticky;
+        top: 16px;
+      }
+      .content-stack {
+        display: grid;
+        gap: 16px;
+      }
+      .admin-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .top-tabs {
+        display: none;
+      }
+      .tab-btn {
+        border: 1px solid rgba(148,163,184,0.35);
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: #e2e8f0;
+        background: rgba(15, 23, 42, 0.45);
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .tab-btn.active {
+        border: none;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+      }
+      .tab-pane {
+        display: none;
+      }
+      .tab-pane.active {
+        display: block;
+      }
+      .left-nav .tab-btn {
+        width: 100%;
+        text-align: left;
+        border-radius: 10px;
+      }
+      @media (max-width: 980px) {
+        .stats { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+        .grid { grid-template-columns: 1fr; }
+        .main-layout {
+          grid-template-columns: 1fr;
+        }
+        .left-nav {
+          display: none;
+        }
+        .top-tabs {
+          display: flex;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <div>
+          <h1>HTX Go Admin Dashboard</h1>
+          <p>Xin chào <strong>{{ admin_username }}</strong>. CRUD dữ liệu realtime trên PostgreSQL.</p>
+        </div>
+        <a class="logout" href="{{ url_for('admin_ui.admin_logout') }}">Đăng xuất</a>
+      </section>
+
+      <div class="main-layout">
+        <aside class="left-nav">
+          <button class="tab-btn active" type="button" data-tab="overview">Overview</button>
+          <button class="tab-btn" type="button" data-tab="users">Users</button>
+          <button class="tab-btn" type="button" data-tab="drivers">Drivers</button>
+          <button class="tab-btn" type="button" data-tab="vehicles">Vehicles</button>
+          <button class="tab-btn" type="button" data-tab="documents">Documents</button>
+          <button class="tab-btn" type="button" data-tab="units">Units</button>
+          <button class="tab-btn" type="button" data-tab="notifications">Notifications</button>
+        </aside>
+
+        <main class="content-stack">
+      <section class="admin-tabs top-tabs">
+        <button class="tab-btn active" type="button" data-tab="overview">Overview</button>
+        <button class="tab-btn" type="button" data-tab="users">Users</button>
+        <button class="tab-btn" type="button" data-tab="drivers">Drivers</button>
+        <button class="tab-btn" type="button" data-tab="vehicles">Vehicles</button>
+        <button class="tab-btn" type="button" data-tab="documents">Documents</button>
+        <button class="tab-btn" type="button" data-tab="units">Units</button>
+        <button class="tab-btn" type="button" data-tab="notifications">Notifications</button>
+      </section>
+
+      <section class="stats tab-pane active" data-pane="overview" id="stats"></section>
+
+      <section class="grid tab-pane active" data-pane="overview">
+        <div class="panel">
+          <h2>Mới cập nhật - Tài xế</h2>
+          <div id="latest-drivers" class="list"></div>
+        </div>
+        <div class="panel">
+          <h2>Mới cập nhật - Xe</h2>
+          <div id="latest-vehicles" class="list"></div>
+        </div>
+      </section>
+
+      <section class="table-wrap tab-pane" data-pane="users">
+        <div class="table-head">
+          <h2>Users</h2>
+          <input class="search" id="search-users" placeholder="Lọc users..." />
+        </div>
+        <form class="crud-form" id="form-users">
+          <input class="tiny-input" name="username" placeholder="username" required />
+          <input class="tiny-input" name="password" placeholder="password" required />
+          <select class="tiny-select" name="role"><option value="driver">driver</option><option value="admin">admin</option></select>
+          <input class="tiny-input" name="driver_id" placeholder="driver_id" />
+          <button class="tiny-btn primary" type="submit">Thêm user</button>
+        </form>
+        <table id="table-users"></table>
+      </section>
+
+      <section class="table-wrap tab-pane" data-pane="drivers">
+        <div class="table-head">
+          <h2>Tài xế</h2>
+          <input class="search" id="search-drivers" placeholder="Lọc tài xế..." />
+        </div>
+        <form class="crud-form" id="form-drivers">
+          <input class="tiny-input" name="full_name" placeholder="Họ tên" required />
+          <input class="tiny-input" name="phone" placeholder="Điện thoại" />
+          <input class="tiny-input" name="license_number" placeholder="GPLX" />
+          <input class="tiny-input" name="unit_id" placeholder="unit_id" required />
+          <button class="tiny-btn primary" type="submit">Thêm tài xế</button>
+        </form>
+        <table id="table-drivers"></table>
+      </section>
+
+      <section class="table-wrap tab-pane" data-pane="vehicles">
+        <div class="table-head">
+          <h2>Xe</h2>
+          <input class="search" id="search-vehicles" placeholder="Lọc xe..." />
+        </div>
+        <form class="crud-form" id="form-vehicles">
+          <input class="tiny-input" name="plate_number" placeholder="Biển số" required />
+          <input class="tiny-input" name="type" placeholder="Loại" />
+          <input class="tiny-input" name="capacity" placeholder="Tải trọng" />
+          <input class="tiny-input" name="unit_id" placeholder="unit_id" required />
+          <input class="tiny-input" name="driver_id" placeholder="driver_id" />
+          <button class="tiny-btn primary" type="submit">Thêm xe</button>
+        </form>
+        <table id="table-vehicles"></table>
+      </section>
+
+      <section class="table-wrap tab-pane" data-pane="documents">
+        <div class="table-head">
+          <h2>Giấy tờ</h2>
+          <input class="search" id="search-documents" placeholder="Lọc giấy tờ..." />
+        </div>
+        <form class="crud-form" id="form-documents">
+          <input class="tiny-input" name="title" placeholder="Tiêu đề" required />
+          <input class="tiny-input" name="doc_type" placeholder="Loại" />
+          <input class="tiny-input" name="number" placeholder="Số" />
+          <input class="tiny-input" name="issued_date" placeholder="YYYY-MM-DD" />
+          <input class="tiny-input" name="expiry_date" placeholder="YYYY-MM-DD" />
+          <input class="tiny-input" name="driver_id" placeholder="driver_id" />
+          <input class="tiny-input" name="vehicle_id" placeholder="vehicle_id" />
+          <button class="tiny-btn primary" type="submit">Thêm giấy tờ</button>
+        </form>
+        <table id="table-documents"></table>
+      </section>
+
+      <section class="table-wrap tab-pane" data-pane="units">
+        <div class="table-head">
+          <h2>Đơn vị HTX</h2>
+          <input class="search" id="search-units" placeholder="Lọc đơn vị..." />
+        </div>
+        <form class="crud-form" id="form-units">
+          <input class="tiny-input" name="name" placeholder="Tên đơn vị" required />
+          <select class="tiny-select" name="is_virtual"><option value="false">Không virtual</option><option value="true">Virtual</option></select>
+          <button class="tiny-btn primary" type="submit">Thêm đơn vị</button>
+        </form>
+        <table id="table-units"></table>
+      </section>
+
+      <section class="table-wrap tab-pane" data-pane="notifications">
+        <div class="table-head">
+          <h2>Notifications</h2>
+          <input class="search" id="search-notifications" placeholder="Lọc thông báo..." />
+        </div>
+        <form class="crud-form" id="form-notifications">
+          <input class="tiny-input" name="title" placeholder="Tiêu đề" required />
+          <input class="tiny-input" name="message" placeholder="Nội dung" required />
+          <select class="tiny-select" name="target_type" id="notif-target">
+            <option value="all">All drivers</option>
+            <option value="group">Group (unit)</option>
+            <option value="driver">Single driver</option>
+          </select>
+          <input class="tiny-input" name="unit_id" id="notif-unit-id" placeholder="unit_id (khi group)" />
+          <input class="tiny-input" name="driver_id" id="notif-driver-id" placeholder="driver_id (khi driver)" />
+          <button class="tiny-btn primary" type="submit">Gửi notification</button>
+        </form>
+        <table id="table-notifications"></table>
+      </section>
+
+      <div class="feedback" id="feedback"></div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const TOKEN = {{ jwt_token | tojson }};
+      const API_BASE = {{ admin_api_base | tojson }};
+      let DATASET = { users: [], drivers: [], vehicles: [], documents: [], units: [], notifications: [] };
+
+      function setFeedback(message, ok = false) {
+        const el = document.getElementById('feedback');
+        el.className = `feedback${ok ? ' ok' : ''}`;
+        el.textContent = message || '';
+      }
+
+      function initTabs() {
+        const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+        const panes = Array.from(document.querySelectorAll('.tab-pane'));
+
+        function activate(tab) {
+          tabButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === tab));
+          panes.forEach((pane) => pane.classList.toggle('active', pane.dataset.pane === tab));
+        }
+
+        tabButtons.forEach((btn) => {
+          btn.addEventListener('click', () => activate(btn.dataset.tab));
+        });
+      }
+
+      async function api(path, method = 'GET', body) {
+        const normalizedPath = (path || '').startsWith('/api/')
+          ? path.slice(4)
+          : path;
+        const finalPath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+        const url = `${API_BASE}${finalPath}`;
+
+        const res = await fetch(url, {
+          method,
+          headers: {
+            Authorization: `Bearer ${TOKEN}`,
+            ...(body ? { 'Content-Type': 'application/json' } : {}),
+          },
+          ...(body ? { body: JSON.stringify(body) } : {}),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `Request failed: ${res.status}`);
+        }
+
+        return res.status === 204 ? null : res.json();
+      }
+
+      function statCard(label, value) {
+        return `<div class="stat"><div class="label">${label}</div><div class="value">${value}</div></div>`;
+      }
+
+      function latestRow(item, strong, muted) {
+        return `<div class="row"><strong>${strong(item) || '-'}</strong><span>${muted(item) || ''}</span></div>`;
+      }
+
+      function actionButtons(onEdit, onDelete) {
+        return `<div class="actions"><button class="tiny-btn" type="button" onclick="${onEdit}">Sửa</button><button class="tiny-btn danger" type="button" onclick="${onDelete}">Xóa</button></div>`;
+      }
+
+      function renderTable(el, rows, columns) {
+        const head = `<thead><tr>${columns.map((c) => `<th>${c.label}</th>`).join('')}</tr></thead>`;
+        const body = `<tbody>${rows.map((r) => `<tr>${columns.map((c) => `<td>${(c.get(r) ?? '')}</td>`).join('')}</tr>`).join('')}</tbody>`;
+        el.innerHTML = head + body;
+      }
+
+      function wireSearch(inputId, tableId, rows, columns) {
+        const input = document.getElementById(inputId);
+        const table = document.getElementById(tableId);
+        const draw = () => {
+          const q = (input.value || '').trim().toLowerCase();
+          const filtered = !q ? rows : rows.filter((r) => JSON.stringify(r).toLowerCase().includes(q));
+          renderTable(table, filtered, columns);
+        };
+        input.addEventListener('input', draw);
+        draw();
+      }
+
+      window.editUser = async (id) => {
+        const row = DATASET.users.find((x) => x.id === id);
+        const username = prompt('Username', row.username);
+        if (!username) return;
+        const role = prompt('Role (admin/driver)', row.role);
+        if (!role) return;
+        const driverId = prompt('Driver ID (optional)', row.driver_id || '');
+        const password = prompt('Password mới (để trống nếu giữ nguyên)', '');
+        await api(`/api/admin/users/${id}`, 'PUT', { username, role, driver_id: driverId || null, password: password || undefined });
+        await refreshAll();
+      };
+
+      window.deleteUser = async (id) => {
+        if (!confirm('Xóa user này?')) return;
+        await api(`/api/admin/users/${id}`, 'DELETE');
+        await refreshAll();
+      };
+
+      window.editDriver = async (id) => {
+        const row = DATASET.drivers.find((x) => x.id === id);
+        const full_name = prompt('Họ tên', row.full_name);
+        if (!full_name) return;
+        const phone = prompt('Điện thoại', row.phone || '');
+        const license_number = prompt('GPLX', row.license_number || '');
+        const unit_id = prompt('Unit ID', String(row.unit_id || ''));
+        await api(`/api/drivers/${id}`, 'PUT', { full_name, phone, license_number, unit_id: Number(unit_id) });
+        await refreshAll();
+      };
+
+      window.deleteDriver = async (id) => {
+        if (!confirm('Xóa tài xế này?')) return;
+        await api(`/api/drivers/${id}`, 'DELETE');
+        await refreshAll();
+      };
+
+      window.editVehicle = async (id) => {
+        const row = DATASET.vehicles.find((x) => x.id === id);
+        const plate_number = prompt('Biển số', row.plate_number);
+        if (!plate_number) return;
+        const type = prompt('Loại', row.type || '');
+        const capacity = prompt('Tải trọng', row.capacity || '');
+        const unit_id = prompt('Unit ID', String(row.unit_id || ''));
+        const driver_id = prompt('Driver ID', row.driver_id || '');
+        await api(`/api/vehicles/${id}`, 'PUT', { plate_number, type, capacity, unit_id: Number(unit_id), driver_id: driver_id ? Number(driver_id) : null });
+        await refreshAll();
+      };
+
+      window.deleteVehicle = async (id) => {
+        if (!confirm('Xóa xe này?')) return;
+        await api(`/api/vehicles/${id}`, 'DELETE');
+        await refreshAll();
+      };
+
+      window.editDocument = async (id) => {
+        const row = DATASET.documents.find((x) => x.id === id);
+        const title = prompt('Tiêu đề', row.title);
+        if (!title) return;
+        const doc_type = prompt('Loại', row.doc_type || '');
+        const number = prompt('Số', row.number || '');
+        const issued_date = prompt('Ngày cấp YYYY-MM-DD', row.issued_date || '');
+        const expiry_date = prompt('Ngày hết hạn YYYY-MM-DD', row.expiry_date || '');
+        await api(`/api/documents/${id}`, 'PUT', { title, doc_type, number, issued_date: issued_date || null, expiry_date: expiry_date || null });
+        await refreshAll();
+      };
+
+      window.deleteDocument = async (id) => {
+        if (!confirm('Xóa giấy tờ này?')) return;
+        await api(`/api/documents/${id}`, 'DELETE');
+        await refreshAll();
+      };
+
+      window.editUnit = async (id) => {
+        const row = DATASET.units.find((x) => x.id === id);
+        const name = prompt('Tên đơn vị', row.name);
+        if (!name) return;
+        const is_virtual = prompt('Virtual? true/false', String(row.is_virtual));
+        await api(`/api/units/${id}`, 'PUT', { name, is_virtual: is_virtual === 'true' });
+        await refreshAll();
+      };
+
+      window.deleteUnit = async (id) => {
+        if (!confirm('Xóa đơn vị này?')) return;
+        await api(`/api/units/${id}`, 'DELETE');
+        await refreshAll();
+      };
+
+      window.deleteNotification = async (id) => {
+        if (!confirm('Xóa notification này?')) return;
+        await api(`/api/admin/notifications/${id}`, 'DELETE');
+        await refreshAll();
+      };
+
+      function bindForms() {
+        document.getElementById('form-users').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          await api('/api/admin/users', 'POST', {
+            username: f.get('username'),
+            password: f.get('password'),
+            role: f.get('role'),
+            driver_id: f.get('driver_id') || null,
+          });
+          e.target.reset();
+          await refreshAll();
+        });
+
+        document.getElementById('form-drivers').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          await api('/api/drivers', 'POST', {
+            full_name: f.get('full_name'),
+            phone: f.get('phone') || null,
+            license_number: f.get('license_number') || null,
+            unit_id: Number(f.get('unit_id')),
+          });
+          e.target.reset();
+          await refreshAll();
+        });
+
+        document.getElementById('form-vehicles').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          await api('/api/vehicles', 'POST', {
+            plate_number: f.get('plate_number'),
+            type: f.get('type') || null,
+            capacity: f.get('capacity') || null,
+            unit_id: Number(f.get('unit_id')),
+            driver_id: f.get('driver_id') ? Number(f.get('driver_id')) : null,
+          });
+          e.target.reset();
+          await refreshAll();
+        });
+
+        document.getElementById('form-documents').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          await api('/api/documents', 'POST', {
+            title: f.get('title'),
+            doc_type: f.get('doc_type') || null,
+            number: f.get('number') || null,
+            issued_date: f.get('issued_date') || null,
+            expiry_date: f.get('expiry_date') || null,
+            driver_id: f.get('driver_id') ? Number(f.get('driver_id')) : null,
+            vehicle_id: f.get('vehicle_id') ? Number(f.get('vehicle_id')) : null,
+          });
+          e.target.reset();
+          await refreshAll();
+        });
+
+        document.getElementById('form-units').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          await api('/api/units', 'POST', {
+            name: f.get('name'),
+            is_virtual: f.get('is_virtual') === 'true',
+          });
+          e.target.reset();
+          await refreshAll();
+        });
+
+        const targetSelect = document.getElementById('notif-target');
+        const unitInput = document.getElementById('notif-unit-id');
+        const driverInput = document.getElementById('notif-driver-id');
+
+        function syncNotifFields() {
+          const target = targetSelect.value;
+          unitInput.disabled = target !== 'group';
+          driverInput.disabled = target !== 'driver';
+        }
+
+        targetSelect.addEventListener('change', syncNotifFields);
+        syncNotifFields();
+
+        document.getElementById('form-notifications').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          await api('/api/admin/notifications', 'POST', {
+            title: f.get('title'),
+            message: f.get('message'),
+            target_type: f.get('target_type'),
+            unit_id: f.get('unit_id') || null,
+            driver_id: f.get('driver_id') || null,
+          });
+          e.target.reset();
+          syncNotifFields();
+          await refreshAll();
+        });
+      }
+
+      async function refreshAll() {
+        try {
+          const [overview, dataset] = await Promise.all([
+            api('/api/admin/overview'),
+            api('/api/admin/dataset'),
+          ]);
+
+          DATASET = dataset;
+          setFeedback('Đồng bộ dữ liệu thành công', true);
+
+          const totals = overview.totals || {};
+          document.getElementById('stats').innerHTML = [
+            statCard('Users', totals.users || 0),
+            statCard('Tài xế', totals.drivers || 0),
+            statCard('Xe', totals.vehicles || 0),
+            statCard('Giấy tờ', totals.documents || 0),
+            statCard('Đơn vị', totals.units || 0),
+          ].join('');
+
+          document.getElementById('latest-drivers').innerHTML =
+            (overview.latest?.drivers || []).map((d) =>
+              latestRow(d, (x) => `${x.full_name} (${x.unit_name || 'N/A'})`, (x) => `${x.phone || 'N/A'} • ${x.license_number || 'N/A'}`)
+            ).join('') || '<div class="muted">Không có dữ liệu</div>';
+
+          document.getElementById('latest-vehicles').innerHTML =
+            (overview.latest?.vehicles || []).map((v) =>
+              latestRow(v, (x) => `${x.plate_number} (${x.type || 'N/A'})`, (x) => `${x.unit_name || 'N/A'} • ${x.driver_name || 'Chưa gán'}`)
+            ).join('') || '<div class="muted">Không có dữ liệu</div>';
+
+          wireSearch('search-users', 'table-users', dataset.users || [], [
+            { label: 'ID', get: (r) => r.id },
+            { label: 'Username', get: (r) => r.username },
+            { label: 'Role', get: (r) => r.role },
+            { label: 'Driver', get: (r) => r.driver_name || '-' },
+            { label: 'Provider', get: (r) => r.auth_provider },
+            { label: 'Actions', get: (r) => actionButtons(`editUser(${r.id})`, `deleteUser(${r.id})`) },
+          ]);
+
+          wireSearch('search-drivers', 'table-drivers', dataset.drivers || [], [
+            { label: 'ID', get: (r) => r.id },
+            { label: 'Họ tên', get: (r) => r.full_name },
+            { label: 'Điện thoại', get: (r) => r.phone || '-' },
+            { label: 'GPLX', get: (r) => r.license_number || '-' },
+            { label: 'Đơn vị', get: (r) => r.unit_name || '-' },
+            { label: 'User', get: (r) => r.user || '-' },
+            { label: 'Actions', get: (r) => actionButtons(`editDriver(${r.id})`, `deleteDriver(${r.id})`) },
+          ]);
+
+          wireSearch('search-vehicles', 'table-vehicles', dataset.vehicles || [], [
+            { label: 'ID', get: (r) => r.id },
+            { label: 'Biển số', get: (r) => r.plate_number },
+            { label: 'Loại', get: (r) => r.type || '-' },
+            { label: 'Tải trọng', get: (r) => r.capacity || '-' },
+            { label: 'Đơn vị', get: (r) => r.unit_name || '-' },
+            { label: 'Tài xế', get: (r) => r.driver_name || '-' },
+            { label: 'Actions', get: (r) => actionButtons(`editVehicle(${r.id})`, `deleteVehicle(${r.id})`) },
+          ]);
+
+          wireSearch('search-documents', 'table-documents', dataset.documents || [], [
+            { label: 'ID', get: (r) => r.id },
+            { label: 'Tiêu đề', get: (r) => r.title },
+            { label: 'Loại', get: (r) => r.doc_type || '-' },
+            { label: 'Số', get: (r) => r.number || '-' },
+            { label: 'Tài xế', get: (r) => r.driver_name || '-' },
+            { label: 'Xe', get: (r) => r.vehicle_plate || '-' },
+            { label: 'Hết hạn', get: (r) => r.expiry_date || '-' },
+            { label: 'Actions', get: (r) => actionButtons(`editDocument(${r.id})`, `deleteDocument(${r.id})`) },
+          ]);
+
+          wireSearch('search-units', 'table-units', dataset.units || [], [
+            { label: 'ID', get: (r) => r.id },
+            { label: 'Tên đơn vị', get: (r) => r.name },
+            { label: 'Virtual', get: (r) => (r.is_virtual ? 'Có' : 'Không') },
+            { label: 'Số tài xế', get: (r) => r.driver_count },
+            { label: 'Số xe', get: (r) => r.vehicle_count },
+            { label: 'Actions', get: (r) => actionButtons(`editUnit(${r.id})`, `deleteUnit(${r.id})`) },
+          ]);
+
+          wireSearch('search-notifications', 'table-notifications', dataset.notifications || [], [
+            { label: 'ID', get: (r) => r.id },
+            { label: 'Tiêu đề', get: (r) => r.title },
+            { label: 'Nội dung', get: (r) => r.message },
+            { label: 'Target', get: (r) => r.target_type },
+            { label: 'Group', get: (r) => r.unit_name || '-' },
+            { label: 'Driver', get: (r) => r.driver_name || '-' },
+            { label: 'By', get: (r) => r.created_by_username || '-' },
+            { label: 'Created', get: (r) => r.created_at || '-' },
+            { label: 'Actions', get: (r) => `<button class="tiny-btn danger" type="button" onclick="deleteNotification(${r.id})">Xóa</button>` },
+          ]);
+        } catch (err) {
+          setFeedback(`Lỗi: ${err.message}`);
+        }
+      }
+
+      (async function init() {
+        initTabs();
+        bindForms();
+        await refreshAll();
+      })();
+    </script>
+  </body>
+</html>
