@@ -38,12 +38,20 @@
         padding: 10px 14px;
         border-radius: 10px;
       }
-      .stats { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 12px; }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        gap: 12px;
+      }
       .stat {
         border: 1px solid var(--line);
         border-radius: 12px;
         background: linear-gradient(160deg, rgba(59,130,246,0.22), rgba(15,23,42,0.65));
         padding: 14px;
+        aspect-ratio: 1 / 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
       .stat .label { color: var(--muted); font-size: 12px; }
       .stat .value { margin-top: 8px; font-size: 28px; font-weight: 700; }
@@ -58,6 +66,12 @@
       .table-wrap { padding: 12px; overflow: auto; }
       .table-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
       .table-head h2 { margin: 0; font-size: 16px; }
+      .table-head h2 { flex: 1; }
+      .search-wrap {
+        position: relative;
+        width: min(520px, 100%);
+        margin-left: auto;
+      }
       .search, .tiny-input, .tiny-select {
         border: 1px solid rgba(148,163,184,0.35);
         border-radius: 8px;
@@ -66,12 +80,36 @@
         padding: 7px 9px;
         font-size: 13px;
       }
-      .search { width: min(260px, 100%); }
+      .search {
+        width: 100%;
+        padding-right: 82px;
+      }
+      .search-btn {
+        position: absolute;
+        top: 50%;
+        right: 6px;
+        transform: translateY(-50%);
+        height: 28px;
+        padding: 0 10px;
+        border-radius: 7px;
+        border: 1px solid rgba(148,163,184,0.35);
+        background: rgba(37, 99, 235, 0.22);
+        color: #e2e8f0;
+        cursor: pointer;
+        font-size: 12px;
+      }
       .crud-form {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
         margin: 8px 0 12px;
+      }
+      .form-full {
+        width: 100%;
+        min-width: 100%;
+      }
+      .target-wrap.hidden {
+        display: none;
       }
       .tiny-btn {
         border: 1px solid rgba(148,163,184,0.35);
@@ -84,14 +122,85 @@
       }
       .tiny-btn.primary { background: linear-gradient(135deg, #2563eb, #4f46e5); border: none; }
       .tiny-btn.danger { background: linear-gradient(135deg, #b91c1c, #dc2626); border: none; }
+      .icon-btn {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .icon-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+      }
 
-      table { width: 100%; border-collapse: collapse; font-size: 13px; }
-      th, td { text-align: left; padding: 8px; border-bottom: 1px solid rgba(148,163,184,0.2); white-space: nowrap; vertical-align: top; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      th, td { text-align: left; padding: 6px; border-bottom: 1px solid rgba(148,163,184,0.2); white-space: normal; vertical-align: top; line-height: 1.25; }
       th { color: #bfdbfe; font-weight: 600; }
       .muted { color: var(--muted); }
       .actions { display: flex; gap: 6px; }
+      .cell-stack { display: grid; gap: 2px; min-width: 0; }
+      .cell-line { color: var(--muted); font-size: 11px; }
+      .cell-line.primary { color: var(--text); font-size: 12px; font-weight: 600; }
       .feedback { margin-top: 4px; color: #fca5a5; font-size: 12px; min-height: 18px; }
       .ok { color: #86efac; }
+      .pager {
+        margin-top: 8px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .pager-btn {
+        border: 1px solid rgba(148,163,184,0.35);
+        background: rgba(30, 41, 59, 0.75);
+        color: #e2e8f0;
+        border-radius: 6px;
+        min-width: 30px;
+        height: 30px;
+        padding: 0 8px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .pager-btn.active {
+        border: none;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+      }
+      .pager-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .loading-state {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 10px;
+        margin: 6px 0 10px;
+        border: 1px solid rgba(148,163,184,0.25);
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.45);
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .loading-state.show {
+        display: inline-flex;
+      }
+      .loading-spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(148,163,184,0.35);
+        border-top-color: #60a5fa;
+        border-radius: 999px;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
       .main-layout {
         display: grid;
         grid-template-columns: 220px 1fr;
@@ -121,6 +230,70 @@
       .top-tabs {
         display: none;
       }
+      .edit-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1200;
+        padding: 16px;
+      }
+      .edit-modal-backdrop.show {
+        display: flex;
+      }
+      .edit-modal {
+        width: min(640px, 100%);
+        max-height: calc(100vh - 32px);
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 14px;
+      }
+      .edit-modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .edit-modal-title {
+        margin: 0;
+        font-size: 18px;
+      }
+      .edit-modal-close {
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        border: 1px solid rgba(148,163,184,0.35);
+        background: rgba(30, 41, 59, 0.75);
+        color: #e2e8f0;
+        cursor: pointer;
+      }
+      .edit-modal-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .edit-modal-field {
+        display: grid;
+        gap: 5px;
+      }
+      .edit-modal-field.full {
+        grid-column: 1 / -1;
+      }
+      .edit-modal-label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .edit-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+      }
       .tab-btn {
         border: 1px solid rgba(148,163,184,0.35);
         border-radius: 999px;
@@ -134,11 +307,40 @@
         border: none;
         background: linear-gradient(135deg, #2563eb, #4f46e5);
       }
+      .tab-btn.sub-tab {
+        opacity: 0.92;
+        border: none;
+        background: rgba(15, 23, 42, 0.3);
+      }
+      .left-nav .tab-btn.sub-tab {
+        position: relative;
+        margin-left: 14px;
+        width: calc(100% - 14px);
+        padding-left: 28px;
+      }
+      .left-nav .tab-btn.sub-tab::before {
+        content: "";
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(191, 219, 254, 0.9);
+      }
+      .top-tabs .tab-btn.sub-tab {
+        margin-left: 8px;
+      }
       .tab-pane {
         display: none;
       }
       .tab-pane.active {
         display: block;
+      }
+      .stats.tab-pane.active,
+      .grid.tab-pane.active {
+        display: grid;
       }
       .left-nav .tab-btn {
         width: 100%;
@@ -146,7 +348,10 @@
         border-radius: 10px;
       }
       @media (max-width: 980px) {
-        .stats { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+        .stats {
+          grid-template-columns: repeat(5, minmax(120px, 1fr));
+          overflow-x: auto;
+        }
         .grid { grid-template-columns: 1fr; }
         .main-layout {
           grid-template-columns: 1fr;
@@ -172,22 +377,28 @@
 
       <div class="main-layout">
         <aside class="left-nav">
-          <button class="tab-btn active" type="button" data-tab="overview">Overview</button>
-          <button class="tab-btn" type="button" data-tab="users">Users</button>
-          <button class="tab-btn" type="button" data-tab="drivers">Drivers</button>
-          <button class="tab-btn" type="button" data-tab="vehicles">Vehicles</button>
-          <button class="tab-btn" type="button" data-tab="units">Units</button>
-          <button class="tab-btn" type="button" data-tab="notifications">Notifications</button>
+          <button class="tab-btn active" type="button" data-tab="overview">Tổng quan</button>
+          <button class="tab-btn" type="button" data-tab="users">Người dùng</button>
+          <button class="tab-btn" type="button" data-tab="drivers">Tài xế</button>
+          <button class="tab-btn sub-tab" type="button" data-tab="driver-documents">Giấy tờ tài xế</button>
+          <button class="tab-btn" type="button" data-tab="vehicles">Phương tiện</button>
+          <button class="tab-btn sub-tab" type="button" data-tab="vehicle-documents">Giấy tờ phương tiện</button>
+          <button class="tab-btn" type="button" data-tab="orgs">Đơn vị & Nhóm tài xế</button>
+          <button class="tab-btn" type="button" data-tab="fines">Phạt nguội</button>
+          <button class="tab-btn" type="button" data-tab="notifications">Thông báo</button>
         </aside>
 
         <main class="content-stack">
       <section class="admin-tabs top-tabs">
-        <button class="tab-btn active" type="button" data-tab="overview">Overview</button>
-        <button class="tab-btn" type="button" data-tab="users">Users</button>
-        <button class="tab-btn" type="button" data-tab="drivers">Drivers</button>
-        <button class="tab-btn" type="button" data-tab="vehicles">Vehicles</button>
-        <button class="tab-btn" type="button" data-tab="units">Units</button>
-        <button class="tab-btn" type="button" data-tab="notifications">Notifications</button>
+        <button class="tab-btn active" type="button" data-tab="overview">Tổng quan</button>
+        <button class="tab-btn" type="button" data-tab="users">Người dùng</button>
+        <button class="tab-btn" type="button" data-tab="drivers">Tài xế</button>
+        <button class="tab-btn sub-tab" type="button" data-tab="driver-documents">Giấy tờ tài xế</button>
+        <button class="tab-btn" type="button" data-tab="vehicles">Phương tiện</button>
+        <button class="tab-btn sub-tab" type="button" data-tab="vehicle-documents">Giấy tờ phương tiện</button>
+        <button class="tab-btn" type="button" data-tab="orgs">Đơn vị & Nhóm tài xế</button>
+        <button class="tab-btn" type="button" data-tab="fines">Phạt nguội</button>
+        <button class="tab-btn" type="button" data-tab="notifications">Thông báo</button>
       </section>
 
       <section class="stats tab-pane active" data-pane="overview" id="stats"></section>
@@ -205,17 +416,18 @@
 
       <section class="table-wrap tab-pane" data-pane="users">
         <div class="table-head">
-          <h2>Users</h2>
+          <h2>Người dùng</h2>
           <input class="search" id="search-users" placeholder="Lọc users..." />
         </div>
         <form class="crud-form" id="form-users">
-          <input class="tiny-input" name="username" placeholder="username" required />
-          <input class="tiny-input" name="password" placeholder="password" required />
-          <select class="tiny-select" name="role"><option value="driver">driver</option><option value="admin">admin</option></select>
+          <input class="tiny-input" name="username" placeholder="Tài khoản" required />
+          <input class="tiny-input" name="password" placeholder="Mật khẩu" required />
+          <select class="tiny-select" name="role"><option value="driver">Tài xế</option><option value="admin">Quản trị viên</option></select>
           <input class="tiny-input" name="driver_id" placeholder="driver_id" />
-          <button class="tiny-btn primary" type="submit">Thêm user</button>
+          <button class="tiny-btn primary" type="submit">+ Thêm user</button>
         </form>
         <table id="table-users"></table>
+        <div class="pager" id="pager-users"></div>
       </section>
 
       <section class="table-wrap tab-pane" data-pane="drivers">
@@ -223,29 +435,23 @@
           <h2>Tài xế</h2>
           <input class="search" id="search-drivers" placeholder="Lọc tài xế..." />
         </div>
+        <div class="loading-state" id="loading-drivers"><span class="loading-spinner"></span><span>Đang tải tài xế...</span></div>
         <form class="crud-form" id="form-drivers">
           <input class="tiny-input" name="full_name" placeholder="Họ tên" required />
           <input class="tiny-input" name="phone" placeholder="Điện thoại" />
           <input class="tiny-input" name="license_number" placeholder="GPLX" />
+          <input class="tiny-input" name="cccd" placeholder="CCCD" />
+          <input class="tiny-input" name="email" placeholder="Email" />
+          <input class="tiny-input" name="address" placeholder="Địa chỉ" />
+          <input class="tiny-input" name="bank_account" placeholder="Số tài khoản" />
+          <select class="tiny-select" name="group_id" id="create-driver-group-id">
+            <option value="">-- Chọn nhóm tài xế --</option>
+          </select>
           <input class="tiny-input" name="unit_id" placeholder="unit_id" required />
-          <button class="tiny-btn primary" type="submit">Thêm tài xế</button>
+          <button class="tiny-btn primary" type="submit">+ Thêm tài xế</button>
         </form>
         <table id="table-drivers"></table>
-
-        <div class="table-head" style="margin-top: 14px;">
-          <h2>Giấy tờ tài xế</h2>
-          <input class="search" id="search-driver-documents" placeholder="Lọc giấy tờ tài xế..." />
-        </div>
-        <form class="crud-form" id="form-driver-documents">
-          <input class="tiny-input" name="title" placeholder="Tiêu đề" required />
-          <input class="tiny-input" name="doc_type" placeholder="Loại" />
-          <input class="tiny-input" name="number" placeholder="Số" />
-          <input class="tiny-input" name="issued_date" placeholder="YYYY-MM-DD" />
-          <input class="tiny-input" name="expiry_date" placeholder="YYYY-MM-DD" />
-          <input class="tiny-input" name="driver_id" placeholder="driver_id" required />
-          <button class="tiny-btn primary" type="submit">Thêm giấy tờ tài xế</button>
-        </form>
-        <table id="table-driver-documents"></table>
+        <div class="pager" id="pager-drivers"></div>
       </section>
 
       <section class="table-wrap tab-pane" data-pane="vehicles">
@@ -253,61 +459,165 @@
           <h2>Xe</h2>
           <input class="search" id="search-vehicles" placeholder="Lọc xe..." />
         </div>
+        <div class="loading-state" id="loading-vehicles"><span class="loading-spinner"></span><span>Đang tải phương tiện...</span></div>
         <form class="crud-form" id="form-vehicles">
           <input class="tiny-input" name="plate_number" placeholder="Biển số" required />
           <input class="tiny-input" name="type" placeholder="Loại" />
           <input class="tiny-input" name="capacity" placeholder="Tải trọng" />
+          <input class="tiny-input" name="owner_name" placeholder="Chủ xe" />
+          <input class="tiny-input" name="owner_cccd" placeholder="CCCD chủ xe" />
+          <input class="tiny-input" name="owner_phone" placeholder="SĐT chủ xe" />
+          <input class="tiny-input" name="owner_email" placeholder="Email chủ xe" />
+          <input class="tiny-input" name="owner_address" placeholder="Địa chỉ chủ xe" />
+          <input class="tiny-input" name="owner_bank_account" placeholder="Số tài khoản chủ xe" />
           <input class="tiny-input" name="unit_id" placeholder="unit_id" required />
-          <input class="tiny-input" name="driver_id" placeholder="driver_id" />
-          <button class="tiny-btn primary" type="submit">Thêm xe</button>
+          <select class="tiny-select" name="driver_id" id="create-vehicle-driver-id">
+            <option value="">-- Chọn tài xế/User --</option>
+          </select>
+          <button class="tiny-btn primary" type="submit">+ Thêm xe</button>
         </form>
         <table id="table-vehicles"></table>
+        <div class="pager" id="pager-vehicles"></div>
+      </section>
 
-        <div class="table-head" style="margin-top: 14px;">
+      <section class="table-wrap tab-pane" data-pane="driver-documents">
+        <div class="table-head">
+          <h2>Giấy tờ tài xế</h2>
+          <input class="search" id="search-driver-documents" placeholder="Lọc giấy tờ tài xế..." />
+        </div>
+        <form class="crud-form" id="form-driver-documents">
+          <select class="tiny-select" name="doc_type" required>
+            <option value="">Chọn loại giấy tờ</option>
+            <option value="CCCD">CCCD</option>
+            <option value="CMND">CMND</option>
+            <option value="GPLX">GPLX</option>
+            <option value="Giấy khám sức khỏe">Giấy khám sức khỏe</option>
+            <option value="Lý lịch tư pháp">Lý lịch tư pháp</option>
+            <option value="Kết quả xét nghiệm">Kết quả xét nghiệm</option>
+            <option value="Giấy xác nhận xã viên">Giấy xác nhận xã viên</option>
+          </select>
+          <input class="tiny-input" name="title" placeholder="Tiêu đề" required />
+          <input class="tiny-input" name="number" placeholder="Số" />
+          <input class="tiny-input" name="issued_date" placeholder="YYYY-MM-DD" />
+          <input class="tiny-input" name="expiry_date" placeholder="YYYY-MM-DD" />
+          <input class="tiny-input" name="driver_id" placeholder="driver_id" required />
+          <input class="tiny-input" type="file" name="images" accept="image/*" multiple />
+          <button class="tiny-btn primary" type="submit">+ Thêm giấy tờ tài xế</button>
+        </form>
+        <table id="table-driver-documents"></table>
+        <div class="pager" id="pager-driver-documents"></div>
+      </section>
+
+      <section class="table-wrap tab-pane" data-pane="vehicle-documents">
+        <div class="table-head">
           <h2>Giấy tờ xe</h2>
           <input class="search" id="search-vehicle-documents" placeholder="Lọc giấy tờ xe..." />
         </div>
         <form class="crud-form" id="form-vehicle-documents">
+          <select class="tiny-select" name="doc_type" required>
+            <option value="">Chọn loại giấy tờ</option>
+            <option value="Giấy đăng ký xe">Giấy đăng ký xe</option>
+            <option value="Đăng kiểm">Đăng kiểm</option>
+            <option value="Bảo hiểm TNDS">Bảo hiểm TNDS</option>
+            <option value="Phù hiệu xe">Phù hiệu xe</option>
+            <option value="Giấy tờ mua bán">Giấy tờ mua bán</option>
+            <option value="Giấy ngân hàng">Giấy ngân hàng</option>
+            <option value="Hợp đồng mua bán">Hợp đồng mua bán</option>
+            <option value="Giấy tờ bảo dưỡng">Giấy tờ bảo dưỡng</option>
+          </select>
           <input class="tiny-input" name="title" placeholder="Tiêu đề" required />
-          <input class="tiny-input" name="doc_type" placeholder="Loại" />
           <input class="tiny-input" name="number" placeholder="Số" />
           <input class="tiny-input" name="issued_date" placeholder="YYYY-MM-DD" />
           <input class="tiny-input" name="expiry_date" placeholder="YYYY-MM-DD" />
           <input class="tiny-input" name="vehicle_id" placeholder="vehicle_id" required />
-          <button class="tiny-btn primary" type="submit">Thêm giấy tờ xe</button>
+          <input class="tiny-input" type="file" name="images" accept="image/*" multiple />
+          <button class="tiny-btn primary" type="submit">+ Thêm giấy tờ xe</button>
         </form>
         <table id="table-vehicle-documents"></table>
+        <div class="pager" id="pager-vehicle-documents"></div>
       </section>
 
-      <section class="table-wrap tab-pane" data-pane="units">
+      <section class="table-wrap tab-pane" data-pane="orgs">
         <div class="table-head">
           <h2>Đơn vị HTX</h2>
           <input class="search" id="search-units" placeholder="Lọc đơn vị..." />
         </div>
         <form class="crud-form" id="form-units">
           <input class="tiny-input" name="name" placeholder="Tên đơn vị" required />
-          <select class="tiny-select" name="is_virtual"><option value="false">Không virtual</option><option value="true">Virtual</option></select>
-          <button class="tiny-btn primary" type="submit">Thêm đơn vị</button>
+          <select class="tiny-select" name="is_virtual"><option value="false">Không ảo</option><option value="true">Ảo</option></select>
+          <button class="tiny-btn primary" type="submit">+ Thêm đơn vị</button>
         </form>
         <table id="table-units"></table>
       </section>
 
+      <section class="table-wrap tab-pane" data-pane="orgs">
+        <div class="table-head">
+          <h2>Nhóm tài xế</h2>
+          <input class="search" id="search-groups" placeholder="Lọc nhóm..." />
+        </div>
+        <form class="crud-form" id="form-groups">
+          <input class="tiny-input" name="name" placeholder="Tên nhóm" required />
+          <input class="tiny-input" name="description" placeholder="Mô tả nhóm" />
+          <button class="tiny-btn primary" type="submit">+ Thêm nhóm</button>
+        </form>
+        <table id="table-groups"></table>
+      </section>
+
+      <section class="table-wrap tab-pane" data-pane="fines">
+        <div class="table-head">
+          <h2>Tra cứu phạt nguội</h2>
+          <input class="search" id="search-fines" placeholder="Nhập biển số xe..." />
+        </div>
+        <form class="crud-form" id="form-fines">
+          <button class="tiny-btn primary" type="submit">Tra cứu biển số</button>
+        </form>
+        <table id="table-fines">
+          <thead>
+            <tr>
+              <th>Biển số</th>
+              <th>Thời gian</th>
+              <th>Địa điểm</th>
+              <th>Hành vi</th>
+              <th>Trạng thái</th>
+              <th>Đơn vị phát hiện</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6" class="muted">Chưa có dữ liệu. Nhập biển số và bấm Tra cứu.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
       <section class="table-wrap tab-pane" data-pane="notifications">
         <div class="table-head">
-          <h2>Notifications</h2>
+          <h2>Thông báo</h2>
           <input class="search" id="search-notifications" placeholder="Lọc thông báo..." />
         </div>
         <form class="crud-form" id="form-notifications">
-          <input class="tiny-input" name="title" placeholder="Tiêu đề" required />
-          <input class="tiny-input" name="message" placeholder="Nội dung" required />
+          <input class="tiny-input form-full" name="title" placeholder="Tiêu đề" required />
+          <textarea class="tiny-input form-full" name="message" placeholder="Nội dung thông báo" rows="5" required></textarea>
           <select class="tiny-select" name="target_type" id="notif-target">
-            <option value="all">All drivers</option>
-            <option value="group">Group (unit)</option>
-            <option value="driver">Single driver</option>
+            <option value="all">Toàn bộ tài xế</option>
+            <option value="htx">Toàn bộ của HTX</option>
+            <option value="group">Theo nhóm tài xế</option>
+            <option value="driver">Theo tài xế</option>
           </select>
-          <input class="tiny-input" name="unit_id" id="notif-unit-id" placeholder="unit_id (khi group)" />
-          <input class="tiny-input" name="driver_id" id="notif-driver-id" placeholder="driver_id (khi driver)" />
-          <button class="tiny-btn primary" type="submit">Gửi notification</button>
+          <div class="target-wrap hidden" id="notif-unit-wrap">
+            <select class="tiny-select" name="unit_id" id="notif-unit-id">
+              <option value="">-- Chọn HTX --</option>
+            </select>
+          </div>
+          <div class="target-wrap hidden" id="notif-group-wrap">
+            <select class="tiny-select" name="driver_group_id" id="notif-group-id">
+              <option value="">-- Chọn nhóm tài xế --</option>
+            </select>
+          </div>
+          <div class="target-wrap hidden" id="notif-driver-wrap">
+            <select class="tiny-select" name="driver_id" id="notif-driver-id">
+              <option value="">-- Chọn tài xế --</option>
+            </select>
+          </div>
+          <button class="tiny-btn primary" type="submit">+ Gửi thông báo</button>
         </form>
         <table id="table-notifications"></table>
       </section>
@@ -317,15 +627,230 @@
       </div>
     </div>
 
+    <div class="edit-modal-backdrop" id="edit-modal-backdrop">
+      <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+        <div class="edit-modal-head">
+          <h3 class="edit-modal-title" id="edit-modal-title">Sửa dữ liệu</h3>
+          <button class="edit-modal-close" type="button" id="edit-modal-close">×</button>
+        </div>
+        <form id="edit-modal-form" class="edit-modal-form"></form>
+        <div class="edit-modal-actions">
+          <button class="tiny-btn" type="button" id="edit-modal-cancel">Hủy</button>
+          <button class="tiny-btn primary" type="submit" form="edit-modal-form" id="edit-modal-submit">Lưu</button>
+        </div>
+      </div>
+    </div>
+
     <script>
-      const TOKEN = {{ jwt_token | tojson }};
+      let TOKEN = {{ jwt_token | tojson }};
       const API_BASE = {{ admin_api_base | tojson }};
-      let DATASET = { users: [], drivers: [], vehicles: [], documents: [], units: [], notifications: [] };
+      const ADMIN_TOKEN_URL = {{ url_for('admin_ui.admin_token') | tojson }};
+      const ADMIN_LOGIN_URL = {{ url_for('admin_ui.admin_login') | tojson }};
+      let DATASET = { users: [], drivers: [], vehicles: [], documents: [], units: [], groups: [], notifications: [] };
+      const DRIVER_DOC_TYPES = [
+        'CCCD',
+        'CMND',
+        'GPLX',
+        'Giấy khám sức khỏe',
+        'Lý lịch tư pháp',
+        'Kết quả xét nghiệm',
+        'Giấy xác nhận xã viên',
+      ];
+      const VEHICLE_DOC_TYPES = [
+        'Giấy đăng ký xe',
+        'Đăng kiểm',
+        'Bảo hiểm TNDS',
+        'Phù hiệu xe',
+        'Giấy tờ mua bán',
+        'Giấy ngân hàng',
+        'Hợp đồng mua bán',
+        'Giấy tờ bảo dưỡng',
+      ];
+      const editModalBackdrop = document.getElementById('edit-modal-backdrop');
+      const editModalTitle = document.getElementById('edit-modal-title');
+      const editModalForm = document.getElementById('edit-modal-form');
+      const editModalClose = document.getElementById('edit-modal-close');
+      const editModalCancel = document.getElementById('edit-modal-cancel');
+      const editModalSubmit = document.getElementById('edit-modal-submit');
+      let closeEditModal = null;
+      const PAGE_SIZE = 20;
+      const pagerState = {};
 
       function setFeedback(message, ok = false) {
         const el = document.getElementById('feedback');
         el.className = `feedback${ok ? ' ok' : ''}`;
         el.textContent = message || '';
+      }
+
+      function setTableLoading(key, loading) {
+        const el = document.getElementById(`loading-${key}`);
+        if (!el) return;
+        el.classList.toggle('show', !!loading);
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function fieldHtml(field) {
+        const type = field.type || 'text';
+        const full = field.full ? ' full' : '';
+        const required = field.required ? 'required' : '';
+        const disabled = field.disabled ? 'disabled' : '';
+        const placeholder = field.placeholder ? `placeholder="${escapeHtml(field.placeholder)}"` : '';
+        const value = escapeHtml(field.value ?? '');
+        const label = escapeHtml(field.label || field.name);
+
+        if (type === 'select') {
+          const options = (field.options || [])
+            .map((opt) => {
+              const v = String(opt.value ?? '');
+              const selected = v === String(field.value ?? '') ? 'selected' : '';
+              return `<option value="${escapeHtml(v)}" ${selected}>${escapeHtml(opt.label ?? v)}</option>`;
+            })
+            .join('');
+          return `
+            <label class="edit-modal-field${full}">
+              <span class="edit-modal-label">${label}</span>
+              <select class="tiny-select" name="${escapeHtml(field.name)}" ${required} ${disabled}>${options}</select>
+            </label>
+          `;
+        }
+
+        return `
+          <label class="edit-modal-field${full}">
+            <span class="edit-modal-label">${label}</span>
+            <input class="tiny-input" type="${escapeHtml(type)}" name="${escapeHtml(field.name)}" value="${value}" ${placeholder} ${required} ${disabled} />
+          </label>
+        `;
+      }
+
+      function openEditModal(config) {
+        return new Promise((resolve) => {
+          editModalTitle.textContent = config.title || 'Sửa dữ liệu';
+          editModalSubmit.textContent = config.submitLabel || 'Lưu';
+          editModalForm.innerHTML = (config.fields || []).map(fieldHtml).join('');
+          editModalBackdrop.classList.add('show');
+
+          const dismiss = (result) => {
+            editModalBackdrop.classList.remove('show');
+            editModalForm.innerHTML = '';
+            closeEditModal = null;
+            resolve(result);
+          };
+
+          const onSubmit = (e) => {
+            e.preventDefault();
+            const formData = new FormData(editModalForm);
+            const values = {};
+            for (const [key, value] of formData.entries()) {
+              values[key] = typeof value === 'string' ? value.trim() : value;
+            }
+            dismiss(values);
+          };
+
+          const onClose = () => dismiss(null);
+          const onBackdropClick = (e) => {
+            if (e.target === editModalBackdrop) dismiss(null);
+          };
+          const onEsc = (e) => {
+            if (e.key === 'Escape') dismiss(null);
+          };
+
+          editModalForm.addEventListener('submit', onSubmit, { once: true });
+          editModalClose.addEventListener('click', onClose, { once: true });
+          editModalCancel.addEventListener('click', onClose, { once: true });
+          editModalBackdrop.addEventListener('click', onBackdropClick, { once: true });
+          document.addEventListener('keydown', onEsc, { once: true });
+
+          closeEditModal = onClose;
+        });
+      }
+
+      function ensureCurrentDocTypeOption(options, current) {
+        const value = String(current || '').trim();
+        if (!value) return options;
+        if (options.some((opt) => String(opt.value) === value)) return options;
+        return [{ value, label: value }, ...options];
+      }
+
+      function syncVehicleDriverSelect() {
+        const select = document.getElementById('create-vehicle-driver-id');
+        if (!select) return;
+        const current = select.value || '';
+        const options = ['<option value="">-- Chọn tài xế/User --</option>'].concat(
+          (DATASET.drivers || []).map((d) => `<option value="${d.id}">${d.id} - ${d.full_name}</option>`)
+        );
+        select.innerHTML = options.join('');
+        if (current && Array.from(select.options).some((opt) => opt.value === current)) {
+          select.value = current;
+        }
+      }
+
+      function syncDriverGroupSelect() {
+        const select = document.getElementById('create-driver-group-id');
+        if (!select) return;
+        const current = select.value || '';
+        const options = ['<option value="">-- Chọn nhóm tài xế --</option>'].concat(
+          (DATASET.groups || []).map((g) => `<option value="${g.id}">${g.id} - ${escapeHtml(g.name)}</option>`)
+        );
+        select.innerHTML = options.join('');
+        if (current && Array.from(select.options).some((opt) => opt.value === current)) {
+          select.value = current;
+        }
+      }
+
+      function syncNotifGroupSelect() {
+        const select = document.getElementById('notif-group-id');
+        if (!select) return;
+        const current = select.value || '';
+        const options = ['<option value="">-- Chọn nhóm tài xế --</option>'].concat(
+          (DATASET.groups || []).map((g) => `<option value="${g.id}">${g.id} - ${escapeHtml(g.name)}</option>`)
+        );
+        select.innerHTML = options.join('');
+        if (current && Array.from(select.options).some((opt) => opt.value === current)) {
+          select.value = current;
+        }
+      }
+
+      function syncNotifUnitSelect() {
+        const select = document.getElementById('notif-unit-id');
+        if (!select) return;
+        const current = select.value || '';
+        const options = ['<option value="">-- Chọn HTX --</option>'].concat(
+          (DATASET.units || []).map((u) => `<option value="${u.id}">${u.id} - ${escapeHtml(u.name)}</option>`)
+        );
+        select.innerHTML = options.join('');
+        if (current && Array.from(select.options).some((opt) => opt.value === current)) {
+          select.value = current;
+        }
+      }
+
+      function syncNotifDriverSelect() {
+        const select = document.getElementById('notif-driver-id');
+        if (!select) return;
+        const current = select.value || '';
+        const vehicleByDriverId = {};
+        (DATASET.vehicles || []).forEach((v) => {
+          if (v.driver_id && !vehicleByDriverId[v.driver_id]) {
+            vehicleByDriverId[v.driver_id] = v.plate_number || '';
+          }
+        });
+        const options = ['<option value="">-- Chọn tài xế --</option>'].concat(
+          (DATASET.drivers || []).map((d) => {
+            const plate = vehicleByDriverId[d.id] || 'Chưa gán xe';
+            return `<option value="${d.id}">${d.id} - ${escapeHtml(d.full_name)} - ${escapeHtml(plate)}</option>`;
+          })
+        );
+        select.innerHTML = options.join('');
+        if (current && Array.from(select.options).some((opt) => opt.value === current)) {
+          select.value = current;
+        }
       }
 
       function initTabs() {
@@ -342,7 +867,31 @@
         });
       }
 
-      async function api(path, method = 'GET', body) {
+      function decorateSearchInputs() {
+        document.querySelectorAll('.table-head .search').forEach((input) => {
+          const parent = input.parentElement;
+          if (!parent || parent.classList.contains('search-wrap')) return;
+          const wrap = document.createElement('div');
+          wrap.className = 'search-wrap';
+          parent.insertBefore(wrap, input);
+          wrap.appendChild(input);
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'search-btn';
+          btn.textContent = 'Search';
+          btn.addEventListener('click', () => {
+            if (input.id === 'search-fines') {
+              document.getElementById('form-fines').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+              return;
+            }
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.focus();
+          });
+          wrap.appendChild(btn);
+        });
+      }
+
+      async function api(path, method = 'GET', body, retryOn401 = true) {
         const normalizedPath = (path || '').startsWith('/api/')
           ? path.slice(4)
           : path;
@@ -359,11 +908,63 @@
         });
 
         if (!res.ok) {
+          if (res.status === 401) {
+            if (retryOn401 && await refreshAdminToken()) {
+              return api(path, method, body, false);
+            }
+            setFeedback('Phiên đăng nhập admin đã hết hạn, đang chuyển về trang đăng nhập...');
+            window.location.href = ADMIN_LOGIN_URL;
+            throw new Error('Phiên đăng nhập đã hết hạn');
+          }
           const err = await res.json().catch(() => ({}));
           throw new Error(err.error || `Request failed: ${res.status}`);
         }
 
         return res.status === 204 ? null : res.json();
+      }
+
+      async function apiForm(path, formData, retryOn401 = true) {
+        const normalizedPath = (path || '').startsWith('/api/')
+          ? path.slice(4)
+          : path;
+        const finalPath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+        const url = `${API_BASE}${finalPath}`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${TOKEN}`,
+          },
+          body: formData,
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            if (retryOn401 && await refreshAdminToken()) {
+              return apiForm(path, formData, false);
+            }
+            setFeedback('Phiên đăng nhập admin đã hết hạn, đang chuyển về trang đăng nhập...');
+            window.location.href = ADMIN_LOGIN_URL;
+            throw new Error('Phiên đăng nhập đã hết hạn');
+          }
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `Request failed: ${res.status}`);
+        }
+
+        return res.status === 204 ? null : res.json();
+      }
+
+      async function refreshAdminToken() {
+        try {
+          const res = await fetch(ADMIN_TOKEN_URL, { method: 'GET' });
+          if (!res.ok) return false;
+          const payload = await res.json().catch(() => ({}));
+          if (!payload || !payload.token) return false;
+          TOKEN = payload.token;
+          return true;
+        } catch (err) {
+          return false;
+        }
       }
 
       function statCard(label, value) {
@@ -374,14 +975,102 @@
         return `<div class="row"><strong>${strong(item) || '-'}</strong><span>${muted(item) || ''}</span></div>`;
       }
 
+      function editIcon() {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
+      }
+
+      function trashIcon() {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+      }
+
       function actionButtons(onEdit, onDelete) {
-        return `<div class="actions"><button class="tiny-btn" type="button" onclick="${onEdit}">Sửa</button><button class="tiny-btn danger" type="button" onclick="${onDelete}">Xóa</button></div>`;
+        return `<div class="actions"><button class="tiny-btn icon-btn" type="button" onclick="${onEdit}" title="Sửa" aria-label="Sửa">${editIcon()}</button><button class="tiny-btn danger icon-btn" type="button" onclick="${onDelete}" title="Xóa" aria-label="Xóa">${trashIcon()}</button></div>`;
+      }
+
+      function stackCell(lines) {
+        return `<div class="cell-stack">${(lines || [])
+          .filter((line) => line !== null && line !== undefined && String(line).trim() !== '')
+          .map((line, idx) => `<div class="cell-line${idx === 0 ? ' primary' : ''}">${escapeHtml(String(line))}</div>`)
+          .join('')}</div>`;
+      }
+
+      function actionCell(id, onEdit, onDelete) {
+        const buttons = [];
+        if (onEdit) buttons.push(`<button class="tiny-btn icon-btn" type="button" onclick="${onEdit}" title="Sửa" aria-label="Sửa">${editIcon()}</button>`);
+        if (onDelete) buttons.push(`<button class="tiny-btn danger icon-btn" type="button" onclick="${onDelete}" title="Xóa" aria-label="Xóa">${trashIcon()}</button>`);
+        return `<div class="cell-stack"><div class="cell-line primary">#${id}</div><div class="actions">${buttons.join('')}</div></div>`;
       }
 
       function renderTable(el, rows, columns) {
-        const head = `<thead><tr>${columns.map((c) => `<th>${c.label}</th>`).join('')}</tr></thead>`;
-        const body = `<tbody>${rows.map((r) => `<tr>${columns.map((c) => `<td>${(c.get(r) ?? '')}</td>`).join('')}</tr>`).join('')}</tbody>`;
+        const orderedColumns = [
+          ...columns.filter((c) => c.label === 'ID / Thao tác'),
+          ...columns.filter((c) => c.label !== 'ID / Thao tác'),
+        ];
+        const head = `<thead><tr>${orderedColumns.map((c) => `<th>${c.label}</th>`).join('')}</tr></thead>`;
+        const body = `<tbody>${rows.map((r) => `<tr>${orderedColumns.map((c) => `<td>${(c.get(r) ?? '')}</td>`).join('')}</tr>`).join('')}</tbody>`;
         el.innerHTML = head + body;
+      }
+
+      function normalizePlate(value) {
+        return String(value || '')
+          .toUpperCase()
+          .replaceAll(/\s+/g, '')
+          .replaceAll(/[^A-Z0-9.-]/g, '');
+      }
+
+      function renderFinesResult(licensePlate, violations) {
+        const table = document.getElementById('table-fines');
+        if (!table) return;
+        const rows = Array.isArray(violations) ? violations : [];
+        if (rows.length === 0) {
+          table.querySelector('tbody').innerHTML = '<tr><td colspan="6" class="muted">Không có vi phạm cho biển số này.</td></tr>';
+          return;
+        }
+        table.querySelector('tbody').innerHTML = rows
+          .map((v) => `
+            <tr>
+              <td>${escapeHtml(v.licensePlate || licensePlate || '-')}</td>
+              <td>${escapeHtml(v.violationTime || '-')}</td>
+              <td>${escapeHtml(v.violationLocation || '-')}</td>
+              <td>${escapeHtml(v.violationBehavior || '-')}</td>
+              <td>${escapeHtml(v.status || '-')}</td>
+              <td>${escapeHtml(v.detectionUnit || '-')}</td>
+            </tr>
+          `)
+          .join('');
+      }
+
+      function parseBankAccount(rawValue) {
+        const value = String(rawValue || '').trim();
+        if (!value) return { bank: '-', account: '-' };
+
+        const compact = value.replace(/\s+/g, ' ').trim();
+        const parts = compact.split(/[|;/-]+/).map((x) => x.trim()).filter(Boolean);
+        const hasDigits = (x) => /[0-9]{6,}/.test(x);
+
+        if (parts.length >= 2) {
+          const accountPart = parts.find(hasDigits) || parts[parts.length - 1];
+          const bankPart = parts.find((x) => x !== accountPart) || parts[0];
+          return {
+            bank: bankPart || '-',
+            account: accountPart || '-',
+          };
+        }
+
+        if (hasDigits(compact)) {
+          return { bank: '-', account: compact };
+        }
+
+        return { bank: compact, account: '-' };
+      }
+
+      function bankInfoCell(ownerName, rawValue) {
+        const parsed = parseBankAccount(rawValue);
+        return stackCell([
+          ownerName || '-',
+          `Ngân hàng: ${parsed.bank || '-'}`,
+          `Số tài khoản: ${parsed.account || '-'}`,
+        ]);
       }
 
       function wireSearch(inputId, tableId, rows, columns) {
@@ -396,15 +1085,100 @@
         draw();
       }
 
+      function renderPager(pager, page, totalPages, onChange) {
+        if (!pager) return;
+        if (totalPages <= 1) {
+          pager.innerHTML = '';
+          return;
+        }
+        const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+        pager.innerHTML = [
+          `<button class="pager-btn" type="button" data-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>&lt;</button>`,
+          ...pages.map((p) => `<button class="pager-btn ${p === page ? 'active' : ''}" type="button" data-page="${p}">${p}</button>`),
+          `<button class="pager-btn" type="button" data-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>&gt;</button>`,
+        ].join('');
+        pager.querySelectorAll('button[data-page]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const target = Number(btn.getAttribute('data-page'));
+            if (!Number.isNaN(target) && target >= 1 && target <= totalPages && target !== page) {
+              onChange(target);
+            }
+          });
+        });
+      }
+
+      function wireSearchPaginated(inputId, tableId, pagerId, rows, columns) {
+        const input = document.getElementById(inputId);
+        const table = document.getElementById(tableId);
+        const pager = document.getElementById(pagerId);
+        const key = `${inputId}:${tableId}:${pagerId}`;
+        if (!pagerState[key]) {
+          pagerState[key] = { page: 1 };
+        }
+
+        const draw = () => {
+          const q = (input.value || '').trim().toLowerCase();
+          const filtered = !q ? rows : rows.filter((r) => JSON.stringify(r).toLowerCase().includes(q));
+          const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+          const currentPage = Math.min(Math.max(1, pagerState[key].page), totalPages);
+          pagerState[key].page = currentPage;
+          const start = (currentPage - 1) * PAGE_SIZE;
+          const pagedRows = filtered.slice(start, start + PAGE_SIZE);
+          renderTable(table, pagedRows, columns);
+          renderPager(pager, currentPage, totalPages, (nextPage) => {
+            pagerState[key].page = nextPage;
+            draw();
+          });
+        };
+
+        if (!input.dataset.pagerBound) {
+          input.addEventListener('input', () => {
+            pagerState[key].page = 1;
+            draw();
+          });
+          input.dataset.pagerBound = '1';
+        }
+        draw();
+      }
+
       window.editUser = async (id) => {
         const row = DATASET.users.find((x) => x.id === id);
-        const username = prompt('Username', row.username);
-        if (!username) return;
-        const role = prompt('Role (admin/driver)', row.role);
-        if (!role) return;
-        const driverId = prompt('Driver ID (optional)', row.driver_id || '');
-        const password = prompt('Password mới (để trống nếu giữ nguyên)', '');
-        await api(`/api/admin/users/${id}`, 'PUT', { username, role, driver_id: driverId || null, password: password || undefined });
+        if (!row) return;
+        const driverOptions = [{ value: '', label: '-- Không gắn tài xế --' }].concat(
+          (DATASET.drivers || []).map((d) => ({ value: String(d.id), label: `${d.id} - ${d.full_name}` }))
+        );
+        const values = await openEditModal({
+          title: `Sửa user #${id}`,
+          fields: [
+            { name: 'username', label: 'Tài khoản', value: row.username, required: true },
+            {
+              name: 'role',
+              label: 'Vai trò',
+              type: 'select',
+              value: row.role || 'driver',
+              options: [
+                { value: 'driver', label: 'Tài xế' },
+                { value: 'admin', label: 'Quản trị viên' },
+              ],
+            },
+            {
+              name: 'driver_id',
+              label: 'Driver',
+              type: 'select',
+              value: row.driver_id ? String(row.driver_id) : '',
+              options: driverOptions,
+            },
+            { name: 'password', label: 'Mật khẩu mới (để trống nếu giữ nguyên)', type: 'password', value: '', full: true },
+          ],
+        });
+        if (!values) return;
+        if (!values.username) return setFeedback('Tài khoản không được để trống');
+        await api(`/api/admin/users/${id}`, 'PUT', {
+          username: values.username,
+          role: values.role || 'driver',
+          driver_id: values.driver_id ? Number(values.driver_id) : null,
+          password: values.password || undefined,
+        });
         await refreshAll();
       };
 
@@ -416,12 +1190,51 @@
 
       window.editDriver = async (id) => {
         const row = DATASET.drivers.find((x) => x.id === id);
-        const full_name = prompt('Họ tên', row.full_name);
-        if (!full_name) return;
-        const phone = prompt('Điện thoại', row.phone || '');
-        const license_number = prompt('GPLX', row.license_number || '');
-        const unit_id = prompt('Unit ID', String(row.unit_id || ''));
-        await api(`/api/drivers/${id}`, 'PUT', { full_name, phone, license_number, unit_id: Number(unit_id) });
+        if (!row) return;
+        const unitOptions = (DATASET.units || []).map((u) => ({ value: String(u.id), label: `${u.id} - ${u.name}` }));
+        const groupOptions = [{ value: '', label: '-- Chưa gán nhóm --' }].concat(
+          (DATASET.groups || []).map((g) => ({ value: String(g.id), label: `${g.id} - ${g.name}` }))
+        );
+        const values = await openEditModal({
+          title: `Sửa tài xế #${id}`,
+          fields: [
+            { name: 'full_name', label: 'Họ tên', value: row.full_name, required: true, full: true },
+            { name: 'phone', label: 'Điện thoại', value: row.phone || '' },
+            { name: 'license_number', label: 'GPLX', value: row.license_number || '' },
+            { name: 'cccd', label: 'CCCD', value: row.cccd || '' },
+            { name: 'email', label: 'Email', value: row.email || '' },
+            { name: 'address', label: 'Địa chỉ', value: row.address || '', full: true },
+            { name: 'bank_account', label: 'Số tài khoản', value: row.bank_account || '' },
+            {
+              name: 'group_id',
+              label: 'Nhóm tài xế',
+              type: 'select',
+              value: row.group_id ? String(row.group_id) : '',
+              options: groupOptions,
+            },
+            {
+              name: 'unit_id',
+              label: 'Đơn vị',
+              type: 'select',
+              value: String(row.unit_id || ''),
+              required: true,
+              options: unitOptions,
+            },
+          ],
+        });
+        if (!values) return;
+        if (!values.full_name) return setFeedback('Họ tên không được để trống');
+        await api(`/api/drivers/${id}`, 'PUT', {
+          full_name: values.full_name,
+          phone: values.phone || null,
+          license_number: values.license_number || null,
+          cccd: values.cccd || null,
+          address: values.address || null,
+          email: values.email || null,
+          bank_account: values.bank_account || null,
+          group_id: values.group_id ? Number(values.group_id) : null,
+          unit_id: Number(values.unit_id),
+        });
         await refreshAll();
       };
 
@@ -433,13 +1246,55 @@
 
       window.editVehicle = async (id) => {
         const row = DATASET.vehicles.find((x) => x.id === id);
-        const plate_number = prompt('Biển số', row.plate_number);
-        if (!plate_number) return;
-        const type = prompt('Loại', row.type || '');
-        const capacity = prompt('Tải trọng', row.capacity || '');
-        const unit_id = prompt('Unit ID', String(row.unit_id || ''));
-        const driver_id = prompt('Driver ID', row.driver_id || '');
-        await api(`/api/vehicles/${id}`, 'PUT', { plate_number, type, capacity, unit_id: Number(unit_id), driver_id: driver_id ? Number(driver_id) : null });
+        if (!row) return;
+        const unitOptions = (DATASET.units || []).map((u) => ({ value: String(u.id), label: `${u.id} - ${u.name}` }));
+        const driverOptions = [{ value: '', label: '-- Chưa gán tài xế --' }].concat(
+          (DATASET.drivers || []).map((d) => ({ value: String(d.id), label: `${d.id} - ${d.full_name}` }))
+        );
+        const values = await openEditModal({
+          title: `Sửa xe #${id}`,
+          fields: [
+            { name: 'plate_number', label: 'Biển số', value: row.plate_number, required: true },
+            { name: 'type', label: 'Loại xe', value: row.type || '' },
+            { name: 'capacity', label: 'Tải trọng', value: row.capacity || '' },
+            { name: 'owner_name', label: 'Chủ xe', value: row.owner_name || '' },
+            { name: 'owner_cccd', label: 'CCCD chủ xe', value: row.owner_cccd || '' },
+            { name: 'owner_phone', label: 'SĐT chủ xe', value: row.owner_phone || '' },
+            { name: 'owner_email', label: 'Email chủ xe', value: row.owner_email || '' },
+            { name: 'owner_bank_account', label: 'Số tài khoản chủ xe', value: row.owner_bank_account || '' },
+            { name: 'owner_address', label: 'Địa chỉ chủ xe', value: row.owner_address || '', full: true },
+            {
+              name: 'unit_id',
+              label: 'Đơn vị',
+              type: 'select',
+              value: String(row.unit_id || ''),
+              required: true,
+              options: unitOptions,
+            },
+            {
+              name: 'driver_id',
+              label: 'Tài xế/User',
+              type: 'select',
+              value: row.driver_id ? String(row.driver_id) : '',
+              options: driverOptions,
+            },
+          ],
+        });
+        if (!values) return;
+        if (!values.plate_number) return setFeedback('Biển số không được để trống');
+        await api(`/api/vehicles/${id}`, 'PUT', {
+          plate_number: values.plate_number,
+          type: values.type || null,
+          capacity: values.capacity || null,
+          owner_name: values.owner_name || null,
+          owner_cccd: values.owner_cccd || null,
+          owner_phone: values.owner_phone || null,
+          owner_address: values.owner_address || null,
+          owner_email: values.owner_email || null,
+          owner_bank_account: values.owner_bank_account || null,
+          unit_id: Number(values.unit_id),
+          driver_id: values.driver_id ? Number(values.driver_id) : null,
+        });
         await refreshAll();
       };
 
@@ -451,13 +1306,35 @@
 
       window.editDocument = async (id) => {
         const row = DATASET.documents.find((x) => x.id === id);
-        const title = prompt('Tiêu đề', row.title);
-        if (!title) return;
-        const doc_type = prompt('Loại', row.doc_type || '');
-        const number = prompt('Số', row.number || '');
-        const issued_date = prompt('Ngày cấp YYYY-MM-DD', row.issued_date || '');
-        const expiry_date = prompt('Ngày hết hạn YYYY-MM-DD', row.expiry_date || '');
-        await api(`/api/documents/${id}`, 'PUT', { title, doc_type, number, issued_date: issued_date || null, expiry_date: expiry_date || null });
+        if (!row) return;
+        const baseDocTypes = row.driver_id
+          ? DRIVER_DOC_TYPES
+          : row.vehicle_id
+            ? VEHICLE_DOC_TYPES
+            : [];
+        const options = ensureCurrentDocTypeOption(
+          baseDocTypes.map((t) => ({ value: t, label: t })),
+          row.doc_type
+        );
+        const values = await openEditModal({
+          title: `Sửa giấy tờ #${id}`,
+          fields: [
+            { name: 'title', label: 'Tiêu đề', value: row.title, required: true, full: true },
+            { name: 'doc_type', label: 'Loại giấy tờ', type: 'select', value: row.doc_type || '', options, full: true },
+            { name: 'number', label: 'Số', value: row.number || '' },
+            { name: 'issued_date', label: 'Ngày cấp', type: 'date', value: row.issued_date || '' },
+            { name: 'expiry_date', label: 'Ngày hết hạn', type: 'date', value: row.expiry_date || '' },
+          ],
+        });
+        if (!values) return;
+        if (!values.title) return setFeedback('Tiêu đề không được để trống');
+        await api(`/api/documents/${id}`, 'PUT', {
+          title: values.title,
+          doc_type: values.doc_type || null,
+          number: values.number || null,
+          issued_date: values.issued_date || null,
+          expiry_date: values.expiry_date || null,
+        });
         await refreshAll();
       };
 
@@ -469,16 +1346,57 @@
 
       window.editUnit = async (id) => {
         const row = DATASET.units.find((x) => x.id === id);
-        const name = prompt('Tên đơn vị', row.name);
-        if (!name) return;
-        const is_virtual = prompt('Virtual? true/false', String(row.is_virtual));
-        await api(`/api/units/${id}`, 'PUT', { name, is_virtual: is_virtual === 'true' });
+        if (!row) return;
+        const values = await openEditModal({
+          title: `Sửa đơn vị #${id}`,
+          fields: [
+            { name: 'name', label: 'Tên đơn vị', value: row.name, required: true, full: true },
+            {
+              name: 'is_virtual',
+              label: 'Loại',
+              type: 'select',
+              value: row.is_virtual ? 'true' : 'false',
+              options: [
+                { value: 'false', label: 'Không ảo' },
+                { value: 'true', label: 'Ảo' },
+              ],
+            },
+          ],
+        });
+        if (!values) return;
+        if (!values.name) return setFeedback('Tên đơn vị không được để trống');
+        await api(`/api/units/${id}`, 'PUT', { name: values.name, is_virtual: values.is_virtual === 'true' });
         await refreshAll();
       };
 
       window.deleteUnit = async (id) => {
         if (!confirm('Xóa đơn vị này?')) return;
         await api(`/api/units/${id}`, 'DELETE');
+        await refreshAll();
+      };
+
+      window.editGroup = async (id) => {
+        const row = DATASET.groups.find((x) => x.id === id);
+        if (!row) return;
+        const values = await openEditModal({
+          title: `Sửa nhóm #${id}`,
+          fields: [
+            { name: 'name', label: 'Tên nhóm', value: row.name, required: true, full: true },
+            { name: 'description', label: 'Mô tả', value: row.description || '', full: true },
+          ],
+        });
+        if (!values) return;
+        if (!values.name) return setFeedback('Tên nhóm không được để trống');
+        await api(`/api/admin/groups/${id}`, 'PUT', {
+          name: values.name,
+          description: values.description || null,
+        });
+        await refreshAll();
+      };
+
+      window.deleteGroup = async (id) => {
+        if (!confirm('Xóa nhóm này?')) return;
+        await api(`/api/admin/groups/${id}`, 'DELETE');
         await refreshAll();
       };
 
@@ -509,9 +1427,15 @@
             full_name: f.get('full_name'),
             phone: f.get('phone') || null,
             license_number: f.get('license_number') || null,
+            cccd: f.get('cccd') || null,
+            email: f.get('email') || null,
+            address: f.get('address') || null,
+            bank_account: f.get('bank_account') || null,
+            group_id: f.get('group_id') ? Number(f.get('group_id')) : null,
             unit_id: Number(f.get('unit_id')),
           });
           e.target.reset();
+          syncDriverGroupSelect();
           await refreshAll();
         });
 
@@ -522,17 +1446,24 @@
             plate_number: f.get('plate_number'),
             type: f.get('type') || null,
             capacity: f.get('capacity') || null,
+            owner_name: f.get('owner_name') || null,
+            owner_cccd: f.get('owner_cccd') || null,
+            owner_phone: f.get('owner_phone') || null,
+            owner_address: f.get('owner_address') || null,
+            owner_email: f.get('owner_email') || null,
+            owner_bank_account: f.get('owner_bank_account') || null,
             unit_id: Number(f.get('unit_id')),
             driver_id: f.get('driver_id') ? Number(f.get('driver_id')) : null,
           });
           e.target.reset();
+          syncVehicleDriverSelect();
           await refreshAll();
         });
 
         document.getElementById('form-driver-documents').addEventListener('submit', async (e) => {
           e.preventDefault();
           const f = new FormData(e.target);
-          await api('/api/documents', 'POST', {
+          const created = await api('/api/documents', 'POST', {
             title: f.get('title'),
             doc_type: f.get('doc_type') || null,
             number: f.get('number') || null,
@@ -541,6 +1472,12 @@
             driver_id: Number(f.get('driver_id')),
             vehicle_id: null,
           });
+          const files = f.getAll('images').filter((x) => x && typeof x !== 'string' && x.size > 0);
+          if (files.length > 0) {
+            const uploadData = new FormData();
+            files.forEach((file) => uploadData.append('files', file));
+            await apiForm(`/api/documents/${created.id}/images`, uploadData);
+          }
           e.target.reset();
           await refreshAll();
         });
@@ -548,7 +1485,7 @@
         document.getElementById('form-vehicle-documents').addEventListener('submit', async (e) => {
           e.preventDefault();
           const f = new FormData(e.target);
-          await api('/api/documents', 'POST', {
+          const created = await api('/api/documents', 'POST', {
             title: f.get('title'),
             doc_type: f.get('doc_type') || null,
             number: f.get('number') || null,
@@ -557,6 +1494,12 @@
             driver_id: null,
             vehicle_id: Number(f.get('vehicle_id')),
           });
+          const files = f.getAll('images').filter((x) => x && typeof x !== 'string' && x.size > 0);
+          if (files.length > 0) {
+            const uploadData = new FormData();
+            files.forEach((file) => uploadData.append('files', file));
+            await apiForm(`/api/documents/${created.id}/images`, uploadData);
+          }
           e.target.reset();
           await refreshAll();
         });
@@ -572,14 +1515,64 @@
           await refreshAll();
         });
 
+        document.getElementById('form-groups').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          await api('/api/admin/groups', 'POST', {
+            name: f.get('name'),
+            description: f.get('description') || null,
+          });
+          e.target.reset();
+          await refreshAll();
+        });
+
+        document.getElementById('form-fines').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const plateInput = document.getElementById('search-fines');
+          const plate = normalizePlate(plateInput ? plateInput.value : '');
+          if (!plate) {
+            setFeedback('Vui lòng nhập biển số để tra cứu');
+            return;
+          }
+          try {
+            const data = await api(`/api/admin/fines/lookup?licensePlate=${encodeURIComponent(plate)}`);
+            renderFinesResult(data.licensePlate || plate, data.violations || []);
+            setFeedback(`Tra cứu phạt nguội thành công cho biển số ${plate}`, true);
+          } catch (err) {
+            setFeedback(`Tra cứu phạt nguội lỗi: ${err.message}`);
+          }
+        });
+
+        const finesSearchInput = document.getElementById('search-fines');
+        if (finesSearchInput) {
+          finesSearchInput.addEventListener('keydown', (evt) => {
+            if (evt.key === 'Enter') {
+              evt.preventDefault();
+              document.getElementById('form-fines').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+          });
+        }
+
         const targetSelect = document.getElementById('notif-target');
         const unitInput = document.getElementById('notif-unit-id');
+        const groupInput = document.getElementById('notif-group-id');
         const driverInput = document.getElementById('notif-driver-id');
+        const unitWrap = document.getElementById('notif-unit-wrap');
+        const groupWrap = document.getElementById('notif-group-wrap');
+        const driverWrap = document.getElementById('notif-driver-wrap');
 
         function syncNotifFields() {
           const target = targetSelect.value;
-          unitInput.disabled = target !== 'group';
-          driverInput.disabled = target !== 'driver';
+          const showHtx = target === 'htx';
+          const showGroup = target === 'group';
+          const showDriver = target === 'driver';
+
+          unitInput.disabled = !showHtx;
+          groupInput.disabled = !showGroup;
+          driverInput.disabled = !showDriver;
+          unitWrap.classList.toggle('hidden', !showHtx);
+          groupWrap.classList.toggle('hidden', !showGroup);
+          driverWrap.classList.toggle('hidden', !showDriver);
         }
 
         targetSelect.addEventListener('change', syncNotifFields);
@@ -592,8 +1585,9 @@
             title: f.get('title'),
             message: f.get('message'),
             target_type: f.get('target_type'),
-            unit_id: f.get('unit_id') || null,
-            driver_id: f.get('driver_id') || null,
+            unit_id: f.get('target_type') === 'htx' ? (f.get('unit_id') || null) : null,
+            driver_group_id: f.get('target_type') === 'group' ? (f.get('driver_group_id') || null) : null,
+            driver_id: f.get('target_type') === 'driver' ? (f.get('driver_id') || null) : null,
           });
           e.target.reset();
           syncNotifFields();
@@ -602,6 +1596,8 @@
       }
 
       async function refreshAll() {
+        setTableLoading('drivers', true);
+        setTableLoading('vehicles', true);
         try {
           const [overview, dataset] = await Promise.all([
             api('/api/admin/overview'),
@@ -609,11 +1605,16 @@
           ]);
 
           DATASET = dataset;
+          syncVehicleDriverSelect();
+          syncDriverGroupSelect();
+          syncNotifGroupSelect();
+          syncNotifUnitSelect();
+          syncNotifDriverSelect();
           setFeedback('Đồng bộ dữ liệu thành công', true);
 
           const totals = overview.totals || {};
           document.getElementById('stats').innerHTML = [
-            statCard('Users', totals.users || 0),
+            statCard('Người dùng', totals.users || 0),
             statCard('Tài xế', totals.drivers || 0),
             statCard('Xe', totals.vehicles || 0),
             statCard('Giấy tờ', totals.documents || 0),
@@ -630,81 +1631,145 @@
               latestRow(v, (x) => `${x.plate_number} (${x.type || 'N/A'})`, (x) => `${x.unit_name || 'N/A'} • ${x.driver_name || 'Chưa gán'}`)
             ).join('') || '<div class="muted">Không có dữ liệu</div>';
 
-          wireSearch('search-users', 'table-users', dataset.users || [], [
-            { label: 'ID', get: (r) => r.id },
-            { label: 'Username', get: (r) => r.username },
-            { label: 'Role', get: (r) => r.role },
-            { label: 'Driver', get: (r) => r.driver_name || '-' },
-            { label: 'Provider', get: (r) => r.auth_provider },
-            { label: 'Actions', get: (r) => actionButtons(`editUser(${r.id})`, `deleteUser(${r.id})`) },
+          const driverById = Object.fromEntries((dataset.drivers || []).map((d) => [d.id, d]));
+          const vehicleById = Object.fromEntries((dataset.vehicles || []).map((v) => [v.id, v]));
+
+          wireSearchPaginated('search-users', 'table-users', 'pager-users', dataset.users || [], [
+            {
+              label: 'Họ tên / CCCD',
+              get: (r) => {
+                const d = r.driver_id ? driverById[r.driver_id] : (dataset.drivers || []).find((x) => x.user === r.username);
+                return stackCell([d?.full_name || r.driver_name || r.username || '-', `CCCD: ${d?.cccd || '-'}`]);
+              },
+            },
+            {
+              label: 'Liên hệ',
+              get: (r) => {
+                const d = r.driver_id ? driverById[r.driver_id] : (dataset.drivers || []).find((x) => x.user === r.username);
+                return stackCell([`SĐT: ${d?.phone || '-'}`, `Địa chỉ: ${d?.address || '-'}`, `Email: ${d?.email || '-'}`]);
+              },
+            },
+            {
+              label: 'HTX / Tài khoản / Mật khẩu',
+              get: (r) => {
+                const d = r.driver_id ? driverById[r.driver_id] : (dataset.drivers || []).find((x) => x.user === r.username);
+                return stackCell([`${d?.unit_name || '-'}`, `Tài khoản: ${r.username || '-'}`, 'Mật khẩu: Không thể xem (đã mã hóa)']);
+              },
+            },
+            { label: 'ID / Thao tác', get: (r) => actionCell(r.id, `editUser(${r.id})`, `deleteUser(${r.id})`) },
           ]);
 
-          wireSearch('search-drivers', 'table-drivers', dataset.drivers || [], [
-            { label: 'ID', get: (r) => r.id },
-            { label: 'Họ tên', get: (r) => r.full_name },
-            { label: 'Điện thoại', get: (r) => r.phone || '-' },
-            { label: 'GPLX', get: (r) => r.license_number || '-' },
-            { label: 'Đơn vị', get: (r) => r.unit_name || '-' },
-            { label: 'User', get: (r) => r.user || '-' },
-            { label: 'Actions', get: (r) => actionButtons(`editDriver(${r.id})`, `deleteDriver(${r.id})`) },
+          wireSearchPaginated('search-drivers', 'table-drivers', 'pager-drivers', dataset.drivers || [], [
+            { label: 'Họ tên / CCCD', get: (r) => stackCell([r.full_name || '-', `CCCD: ${r.cccd || '-'}`]) },
+            { label: 'Liên hệ', get: (r) => stackCell([`SĐT: ${r.phone || '-'}`, `Địa chỉ: ${r.address || '-'}`, `Email: ${r.email || '-'}`]) },
+            { label: 'Tên chủ TK / Ngân hàng / Số tài khoản', get: (r) => bankInfoCell(r.full_name, r.bank_account) },
+            { label: 'HTX / Tài khoản / Mật khẩu', get: (r) => stackCell([`${r.unit_name || '-'}`, `Tài khoản: ${r.user || '-'}`, 'Mật khẩu: Không thể xem (đã mã hóa)']) },
+            { label: 'ID / Thao tác', get: (r) => actionCell(r.id, `editDriver(${r.id})`, `deleteDriver(${r.id})`) },
           ]);
 
-          wireSearch('search-vehicles', 'table-vehicles', dataset.vehicles || [], [
-            { label: 'ID', get: (r) => r.id },
-            { label: 'Biển số', get: (r) => r.plate_number },
-            { label: 'Loại', get: (r) => r.type || '-' },
-            { label: 'Tải trọng', get: (r) => r.capacity || '-' },
-            { label: 'Đơn vị', get: (r) => r.unit_name || '-' },
-            { label: 'Tài xế', get: (r) => r.driver_name || '-' },
-            { label: 'Actions', get: (r) => actionButtons(`editVehicle(${r.id})`, `deleteVehicle(${r.id})`) },
+          wireSearchPaginated('search-vehicles', 'table-vehicles', 'pager-vehicles', dataset.vehicles || [], [
+            { label: 'Họ tên / CCCD', get: (r) => stackCell([r.owner_name || r.plate_number || '-', `CCCD: ${r.owner_cccd || '-'}`]) },
+            { label: 'Liên hệ', get: (r) => stackCell([`SĐT: ${r.owner_phone || '-'}`, `Địa chỉ: ${r.owner_address || '-'}`, `Email: ${r.owner_email || '-'}`]) },
+            { label: 'Tên chủ TK / Ngân hàng / Số tài khoản', get: (r) => bankInfoCell(r.owner_name, r.owner_bank_account) },
+            {
+              label: 'HTX / Tài khoản / Mật khẩu',
+              get: (r) => {
+                const linkedDriver = r.driver_id ? driverById[r.driver_id] : null;
+                return stackCell([`${r.unit_name || '-'}`, `Tài khoản: ${(linkedDriver && linkedDriver.user) || '-'}`, 'Mật khẩu: Không thể xem (đã mã hóa)']);
+              },
+            },
+            { label: 'ID / Thao tác', get: (r) => actionCell(r.id, `editVehicle(${r.id})`, `deleteVehicle(${r.id})`) },
           ]);
 
-          wireSearch('search-driver-documents', 'table-driver-documents', (dataset.documents || []).filter((d) => d.driver_id), [
-            { label: 'ID', get: (r) => r.id },
-            { label: 'Tiêu đề', get: (r) => r.title },
-            { label: 'Loại', get: (r) => r.doc_type || '-' },
-            { label: 'Số', get: (r) => r.number || '-' },
-            { label: 'Tài xế', get: (r) => r.driver_name || '-' },
-            { label: 'Hết hạn', get: (r) => r.expiry_date || '-' },
-            { label: 'Actions', get: (r) => actionButtons(`editDocument(${r.id})`, `deleteDocument(${r.id})`) },
+          wireSearchPaginated('search-driver-documents', 'table-driver-documents', 'pager-driver-documents', (dataset.documents || []).filter((d) => d.driver_id), [
+            {
+              label: 'Họ tên / CCCD',
+              get: (r) => {
+                const d = r.driver_id ? driverById[r.driver_id] : null;
+                return stackCell([d?.full_name || r.driver_name || r.title || '-', `CCCD: ${d?.cccd || '-'}`]);
+              },
+            },
+            {
+              label: 'Liên hệ',
+              get: (r) => {
+                const d = r.driver_id ? driverById[r.driver_id] : null;
+                return stackCell([`SĐT: ${d?.phone || '-'}`, `Địa chỉ: ${d?.address || '-'}`, `Email: ${d?.email || '-'}`]);
+              },
+            },
+            {
+              label: 'HTX / Tài khoản / Mật khẩu',
+              get: (r) => {
+                const d = r.driver_id ? driverById[r.driver_id] : null;
+                return stackCell([
+                  `${d?.unit_name || '-'}`,
+                  `Tài khoản: ${d?.user || '-'}`,
+                  `Mật khẩu: Không thể xem (đã mã hóa) • ${r.doc_type || '-'} • Ảnh: ${r.image_count || 0}`,
+                ]);
+              },
+            },
+            { label: 'ID / Thao tác', get: (r) => actionCell(r.id, `editDocument(${r.id})`, `deleteDocument(${r.id})`) },
           ]);
 
-          wireSearch('search-vehicle-documents', 'table-vehicle-documents', (dataset.documents || []).filter((d) => d.vehicle_id), [
-            { label: 'ID', get: (r) => r.id },
-            { label: 'Tiêu đề', get: (r) => r.title },
-            { label: 'Loại', get: (r) => r.doc_type || '-' },
-            { label: 'Số', get: (r) => r.number || '-' },
-            { label: 'Xe', get: (r) => r.vehicle_plate || '-' },
-            { label: 'Hết hạn', get: (r) => r.expiry_date || '-' },
-            { label: 'Actions', get: (r) => actionButtons(`editDocument(${r.id})`, `deleteDocument(${r.id})`) },
+          wireSearchPaginated('search-vehicle-documents', 'table-vehicle-documents', 'pager-vehicle-documents', (dataset.documents || []).filter((d) => d.vehicle_id), [
+            {
+              label: 'Họ tên / CCCD',
+              get: (r) => {
+                const v = r.vehicle_id ? vehicleById[r.vehicle_id] : null;
+                return stackCell([v?.owner_name || r.vehicle_plate || r.title || '-', `CCCD: ${v?.owner_cccd || '-'}`]);
+              },
+            },
+            {
+              label: 'Liên hệ',
+              get: (r) => {
+                const v = r.vehicle_id ? vehicleById[r.vehicle_id] : null;
+                return stackCell([`SĐT: ${v?.owner_phone || '-'}`, `Địa chỉ: ${v?.owner_address || '-'}`, `Email: ${v?.owner_email || '-'}`]);
+              },
+            },
+            {
+              label: 'HTX / Tài khoản / Mật khẩu',
+              get: (r) => {
+                const v = r.vehicle_id ? vehicleById[r.vehicle_id] : null;
+                const d = v && v.driver_id ? driverById[v.driver_id] : null;
+                return stackCell([
+                  `${v?.unit_name || '-'}`,
+                  `Tài khoản: ${d?.user || '-'}`,
+                  `Mật khẩu: Không thể xem (đã mã hóa) • ${r.doc_type || '-'} • Ảnh: ${r.image_count || 0}`,
+                ]);
+              },
+            },
+            { label: 'ID / Thao tác', get: (r) => actionCell(r.id, `editDocument(${r.id})`, `deleteDocument(${r.id})`) },
           ]);
 
           wireSearch('search-units', 'table-units', dataset.units || [], [
-            { label: 'ID', get: (r) => r.id },
-            { label: 'Tên đơn vị', get: (r) => r.name },
-            { label: 'Virtual', get: (r) => (r.is_virtual ? 'Có' : 'Không') },
-            { label: 'Số tài xế', get: (r) => r.driver_count },
-            { label: 'Số xe', get: (r) => r.vehicle_count },
-            { label: 'Actions', get: (r) => actionButtons(`editUnit(${r.id})`, `deleteUnit(${r.id})`) },
+            { label: 'Họ tên / CCCD', get: (r) => stackCell([r.name || '-', `CCCD: -`]) },
+            { label: 'Liên hệ', get: (r) => stackCell(['SĐT: -', 'Địa chỉ: -', 'Email: -']) },
+            { label: 'HTX / Tài khoản / Mật khẩu', get: (r) => stackCell([`${r.name || '-'}`, `Tài khoản: ${r.is_virtual ? 'Ảo' : '-'}`, `Mật khẩu: Không thể xem (đã mã hóa) • Tài xế: ${r.driver_count || 0} • Xe: ${r.vehicle_count || 0}`]) },
+            { label: 'ID / Thao tác', get: (r) => actionCell(r.id, `editUnit(${r.id})`, `deleteUnit(${r.id})`) },
+          ]);
+
+          wireSearch('search-groups', 'table-groups', dataset.groups || [], [
+            { label: 'Họ tên / CCCD', get: (r) => stackCell([r.name || '-', 'CCCD: -']) },
+            { label: 'Liên hệ', get: (r) => stackCell(['SĐT: -', `Địa chỉ: ${r.description || '-'}`, 'Email: -']) },
+            { label: 'HTX / Tài khoản / Mật khẩu', get: (r) => stackCell([`Nhóm`, `Tài khoản: ${r.name || '-'}`, `Mật khẩu: Không thể xem (đã mã hóa) • Số tài xế: ${r.driver_count || 0}`]) },
+            { label: 'ID / Thao tác', get: (r) => actionCell(r.id, `editGroup(${r.id})`, `deleteGroup(${r.id})`) },
           ]);
 
           wireSearch('search-notifications', 'table-notifications', dataset.notifications || [], [
-            { label: 'ID', get: (r) => r.id },
-            { label: 'Tiêu đề', get: (r) => r.title },
-            { label: 'Nội dung', get: (r) => r.message },
-            { label: 'Target', get: (r) => r.target_type },
-            { label: 'Group', get: (r) => r.unit_name || '-' },
-            { label: 'Driver', get: (r) => r.driver_name || '-' },
-            { label: 'By', get: (r) => r.created_by_username || '-' },
-            { label: 'Created', get: (r) => r.created_at || '-' },
-            { label: 'Actions', get: (r) => `<button class="tiny-btn danger" type="button" onclick="deleteNotification(${r.id})">Xóa</button>` },
+            { label: 'Họ tên / CCCD', get: (r) => stackCell([r.title || '-', 'CCCD: -']) },
+            { label: 'Liên hệ', get: (r) => stackCell([`SĐT: -`, `Địa chỉ: ${r.message || '-'}`, 'Email: -']) },
+            { label: 'HTX / Tài khoản / Mật khẩu', get: (r) => stackCell([`${r.unit_name || '-'}`, `Tài khoản: ${r.created_by_username || '-'}`, `Mật khẩu: Không thể xem (đã mã hóa) • Kiểu: ${r.target_type || '-'} • Nhóm: ${r.driver_group_name || '-'} • Tài xế: ${r.driver_name || '-'}`]) },
+            { label: 'ID / Thao tác', get: (r) => actionCell(r.id, null, `deleteNotification(${r.id})`) },
           ]);
         } catch (err) {
           setFeedback(`Lỗi: ${err.message}`);
+        } finally {
+          setTableLoading('drivers', false);
+          setTableLoading('vehicles', false);
         }
       }
 
       (async function init() {
+        decorateSearchInputs();
         initTabs();
         bindForms();
         await refreshAll();

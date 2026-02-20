@@ -19,6 +19,12 @@ def list_vehicles():
             "plate_number": v.plate_number,
             "type": v.type,
             "capacity": v.capacity,
+            "owner_name": v.owner_name,
+            "owner_cccd": v.owner_cccd,
+            "owner_phone": v.owner_phone,
+            "owner_address": v.owner_address,
+            "owner_email": v.owner_email,
+            "owner_bank_account": v.owner_bank_account,
             "unit_id": v.unit_id,
             "driver_id": v.driver_id,
         }
@@ -35,6 +41,12 @@ def get_vehicle(vehicle_id):
         "plate_number": v.plate_number,
         "type": v.type,
         "capacity": v.capacity,
+        "owner_name": v.owner_name,
+        "owner_cccd": v.owner_cccd,
+        "owner_phone": v.owner_phone,
+        "owner_address": v.owner_address,
+        "owner_email": v.owner_email,
+        "owner_bank_account": v.owner_bank_account,
         "unit_id": v.unit_id,
         "driver_id": v.driver_id,
     })
@@ -53,6 +65,12 @@ def create_vehicle():
         plate_number=plate_number,
         type=data.get("type"),
         capacity=data.get("capacity"),
+        owner_name=data.get("owner_name"),
+        owner_cccd=data.get("owner_cccd"),
+        owner_phone=data.get("owner_phone"),
+        owner_address=data.get("owner_address"),
+        owner_email=data.get("owner_email"),
+        owner_bank_account=data.get("owner_bank_account"),
         unit_id=unit_id,
         driver_id=data.get("driver_id"),
     )
@@ -72,6 +90,18 @@ def update_vehicle(vehicle_id):
         vehicle.type = data["type"]
     if "capacity" in data:
         vehicle.capacity = data["capacity"]
+    if "owner_name" in data:
+        vehicle.owner_name = data["owner_name"]
+    if "owner_cccd" in data:
+        vehicle.owner_cccd = data["owner_cccd"]
+    if "owner_phone" in data:
+        vehicle.owner_phone = data["owner_phone"]
+    if "owner_address" in data:
+        vehicle.owner_address = data["owner_address"]
+    if "owner_email" in data:
+        vehicle.owner_email = data["owner_email"]
+    if "owner_bank_account" in data:
+        vehicle.owner_bank_account = data["owner_bank_account"]
     if "unit_id" in data:
         vehicle.unit_id = data["unit_id"]
     if "driver_id" in data:

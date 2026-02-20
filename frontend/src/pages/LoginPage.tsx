@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import { ApiError, api, setToken } from "../api";
+import { ApiError, api, setAuthTokens } from "../api";
 import { asset } from "../assets";
 
 export default function LoginPage() {
@@ -13,7 +13,7 @@ export default function LoginPage() {
     setError(null);
     try {
       const data = await api.login({ username, password });
-      setToken(data.access_token);
+      setAuthTokens(data.access_token, data.refresh_token);
       window.location.reload();
     } catch (err) {
       const apiError = err as ApiError;

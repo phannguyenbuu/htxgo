@@ -19,6 +19,11 @@ def list_drivers():
             "full_name": d.full_name,
             "phone": d.phone,
             "license_number": d.license_number,
+            "cccd": d.cccd,
+            "address": d.address,
+            "email": d.email,
+            "bank_account": d.bank_account,
+            "group_id": d.group_id,
             "unit_id": d.unit_id,
         }
         for d in drivers
@@ -34,6 +39,11 @@ def get_driver(driver_id):
         "full_name": d.full_name,
         "phone": d.phone,
         "license_number": d.license_number,
+        "cccd": d.cccd,
+        "address": d.address,
+        "email": d.email,
+        "bank_account": d.bank_account,
+        "group_id": d.group_id,
         "unit_id": d.unit_id,
     })
 
@@ -51,6 +61,11 @@ def create_driver():
         full_name=full_name,
         phone=data.get("phone"),
         license_number=data.get("license_number"),
+        cccd=data.get("cccd"),
+        address=data.get("address"),
+        email=data.get("email"),
+        bank_account=data.get("bank_account"),
+        group_id=data.get("group_id"),
         unit_id=unit_id,
     )
     db.session.add(driver)
@@ -69,6 +84,16 @@ def update_driver(driver_id):
         driver.phone = data["phone"]
     if "license_number" in data:
         driver.license_number = data["license_number"]
+    if "cccd" in data:
+        driver.cccd = data["cccd"]
+    if "address" in data:
+        driver.address = data["address"]
+    if "email" in data:
+        driver.email = data["email"]
+    if "bank_account" in data:
+        driver.bank_account = data["bank_account"]
+    if "group_id" in data:
+        driver.group_id = data["group_id"]
     if "unit_id" in data:
         driver.unit_id = data["unit_id"]
 

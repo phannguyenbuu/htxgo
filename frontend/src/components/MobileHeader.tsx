@@ -1,5 +1,6 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { api } from "../api";
 import { asset } from "../assets";
 import ImageModal from "./ImageModal";
 import QrScanModal from "./QrScanModal";
@@ -13,6 +14,13 @@ type MobileHeaderProps = {
   scrollDots?: ScrollDotsProps;
 };
 
+type AppNotification = {
+  id: number;
+  title: string;
+  message: string;
+  created_at?: string | null;
+};
+
 function normalizePlate(value: string) {
   return value.toUpperCase().replace(/[^A-Z0-9.-]/g, "").replace(/\s+/g, "").trim();
 }
@@ -24,6 +32,7 @@ export default function MobileHeader({ scrollDots: _scrollDots }: MobileHeaderPr
   const [qrResult, setQrResult] = useState("");
   const [resultOpen, setResultOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [searchPlate, setSearchPlate] = useState("");
   const [voiceListening, setVoiceListening] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -99,6 +108,25 @@ export default function MobileHeader({ scrollDots: _scrollDots }: MobileHeaderPr
     };
   }, []);
 
+  useEffect(() => {
+    let ignore = false;
+    (async () => {
+      try {
+        const items = await api.listMyNotifications();
+        if (!ignore) {
+          setNotifications(Array.isArray(items) ? items : []);
+        }
+      } catch {
+        if (!ignore) {
+          setNotifications([]);
+        }
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   return (
     <>
       <header className="topbar">
@@ -114,9 +142,9 @@ export default function MobileHeader({ scrollDots: _scrollDots }: MobileHeaderPr
             <button className="icon-btn qr-icon-btn" aria-label="Quét QR" onClick={() => setQrOpen(true)}>
               <img src={asset("QR.png")} alt="" className="qr-icon" />
             </button>
-            <button className="notif notif-btn" aria-label="Thông báo lệnh phạt" onClick={() => setNotifOpen(true)}>
+            <button className="notif notif-btn" aria-label="Thông báo" onClick={() => setNotifOpen(true)}>
               <span className="bell" />
-              <span className="badge-count">3</span>
+              {notifications.length > 0 && <span className="badge-count">{notifications.length}</span>}
             </button>
           </div>
         </div>
@@ -172,26 +200,24 @@ export default function MobileHeader({ scrollDots: _scrollDots }: MobileHeaderPr
         <div className="qr-result-text">{qrResult || "Không đọc được nội dung QR"}</div>
       </ImageModal>
 
-      <ImageModal open={notifOpen} onClose={() => setNotifOpen(false)} title="Lệnh phạt (3)">
+      <ImageModal open={notifOpen} onClose={() => setNotifOpen(false)} title={`Thông báo (${notifications.length})`}>
         <div className="fine-list">
-          <div className="fine-item">
-            <div className="fine-title">Phạt quá tốc độ - 50E57390</div>
-            <div className="fine-meta">08:20 14/02/2026 - QL1A, TP.HCM</div>
-            <div className="fine-amount">2.500.000d</div>
-          </div>
-          <div className="fine-item">
-            <div className="fine-title">Phạt dừng đỗ sai quy định - 50E57390</div>
-            <div className="fine-meta">17:45 10/02/2026 - Quận 1, TP.HCM</div>
-            <div className="fine-amount">900.000d</div>
-          </div>
-          <div className="fine-item">
-            <div className="fine-title">Phạt đi sai làn - 50E57390</div>
-            <div className="fine-meta">09:05 03/02/2026 - Xa lộ Hà Nội</div>
-            <div className="fine-amount">1.200.000d</div>
-          </div>
+          {notifications.length === 0 ? (
+            <div className="fine-item">
+              <div className="fine-title">Chưa có thông báo</div>
+              <div className="fine-meta">Khi admin gửi thông báo, mục này sẽ tự cập nhật.</div>
+            </div>
+          ) : (
+            notifications.map((item) => (
+              <div className="fine-item" key={item.id}>
+                <div className="fine-title">{item.title}</div>
+                <div className="fine-meta">{item.created_at || "Vừa xong"}</div>
+                <div className="fine-amount">{item.message}</div>
+              </div>
+            ))
+          )}
         </div>
       </ImageModal>
     </>
   );
 }
-

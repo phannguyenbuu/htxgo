@@ -21,6 +21,11 @@ class Driver(db.Model):
     full_name = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(32), nullable=True)
     license_number = db.Column(db.String(64), nullable=True)
+    cccd = db.Column(db.String(32), nullable=True)
+    address = db.Column(db.String(255), nullable=True)
+    email = db.Column(db.String(120), nullable=True)
+    bank_account = db.Column(db.String(64), nullable=True)
+    group_id = db.Column(db.Integer, nullable=True)
     unit_id = db.Column(db.Integer, db.ForeignKey("units.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
@@ -35,6 +40,12 @@ class Vehicle(db.Model):
     plate_number = db.Column(db.String(32), unique=True, nullable=False)
     type = db.Column(db.String(64), nullable=True)
     capacity = db.Column(db.String(64), nullable=True)
+    owner_name = db.Column(db.String(120), nullable=True)
+    owner_cccd = db.Column(db.String(32), nullable=True)
+    owner_phone = db.Column(db.String(32), nullable=True)
+    owner_address = db.Column(db.String(255), nullable=True)
+    owner_email = db.Column(db.String(120), nullable=True)
+    owner_bank_account = db.Column(db.String(64), nullable=True)
     unit_id = db.Column(db.Integer, db.ForeignKey("units.id"), nullable=False)
     driver_id = db.Column(db.Integer, db.ForeignKey("drivers.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -58,6 +69,26 @@ class Document(db.Model):
 
     driver = db.relationship("Driver", back_populates="documents")
     vehicle = db.relationship("Vehicle", back_populates="documents")
+    images = db.relationship("DocumentImage", back_populates="document", cascade="all, delete")
+
+
+class DocumentImage(db.Model):
+    __tablename__ = "document_images"
+    id = db.Column(db.Integer, primary_key=True)
+    document_id = db.Column(db.Integer, db.ForeignKey("documents.id"), nullable=False)
+    file_path = db.Column(db.String(255), nullable=False)
+    original_name = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    document = db.relationship("Document", back_populates="images")
+
+
+class DriverGroup(db.Model):
+    __tablename__ = "driver_groups"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
 class Notification(db.Model):
@@ -68,6 +99,7 @@ class Notification(db.Model):
     target_type = db.Column(db.String(16), nullable=False, default="all")  # all|group|driver
     unit_id = db.Column(db.Integer, db.ForeignKey("units.id"), nullable=True)
     driver_id = db.Column(db.Integer, db.ForeignKey("drivers.id"), nullable=True)
+    driver_group_id = db.Column(db.Integer, nullable=True)
     created_by_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 

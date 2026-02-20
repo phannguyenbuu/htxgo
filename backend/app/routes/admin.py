@@ -1,12 +1,14 @@
 ﻿from datetime import datetime
 
 from flask import Blueprint, current_app, jsonify, redirect, render_template, request, session, url_for
-from flask_jwt_extended import create_access_token, decode_token
+from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
+from requests import RequestException
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from .. import db
-from ..models import Document, Driver, Notification, Unit, User, Vehicle
+from ..models import Document, Driver, DriverGroup, Notification, Unit, User, Vehicle
+from ..services.fines_lookup import lookup_fines
 
 
 api_bp = Blueprint("admin_api", __name__)
@@ -14,6 +16,25 @@ ui_bp = Blueprint("admin_ui", __name__)
 
 
 LOGIN_SESSION_KEY = "admin_token"
+REFRESH_SESSION_KEY = "admin_refresh_token"
+
+
+def _admin_claims_from_token(token):
+    if not token:
+        return None
+    try:
+        payload = decode_token(token)
+    except Exception:
+        return None
+
+    role = payload.get("role")
+    if role != "admin":
+        return None
+    return {
+        "id": payload.get("user_id"),
+        "role": role,
+        "sub": payload.get("sub"),
+    }
 
 
 def _serialize_units(units):
@@ -30,12 +51,19 @@ def _serialize_units(units):
 
 
 def _serialize_drivers(drivers):
+    group_map = {g.id: g.name for g in DriverGroup.query.all()}
     return [
         {
             "id": d.id,
             "full_name": d.full_name,
             "phone": d.phone,
             "license_number": d.license_number,
+            "cccd": d.cccd,
+            "address": d.address,
+            "email": d.email,
+            "bank_account": d.bank_account,
+            "group_id": d.group_id,
+            "group_name": group_map.get(d.group_id),
             "unit_id": d.unit_id,
             "unit_name": d.unit.name if d.unit else None,
             "created_at": d.created_at.isoformat() if d.created_at else None,
@@ -52,6 +80,12 @@ def _serialize_vehicles(vehicles):
             "plate_number": v.plate_number,
             "type": v.type,
             "capacity": v.capacity,
+            "owner_name": v.owner_name,
+            "owner_cccd": v.owner_cccd,
+            "owner_phone": v.owner_phone,
+            "owner_address": v.owner_address,
+            "owner_email": v.owner_email,
+            "owner_bank_account": v.owner_bank_account,
             "unit_id": v.unit_id,
             "unit_name": v.unit.name if v.unit else None,
             "driver_id": v.driver_id,
@@ -75,9 +109,23 @@ def _serialize_documents(documents):
             "driver_name": d.driver.full_name if d.driver else None,
             "vehicle_id": d.vehicle_id,
             "vehicle_plate": d.vehicle.plate_number if d.vehicle else None,
+            "image_count": len(d.images),
             "created_at": d.created_at.isoformat() if d.created_at else None,
         }
         for d in documents
+    ]
+
+
+def _serialize_groups(groups):
+    return [
+        {
+            "id": g.id,
+            "name": g.name,
+            "description": g.description,
+            "driver_count": Driver.query.filter_by(group_id=g.id).count(),
+            "created_at": g.created_at.isoformat() if g.created_at else None,
+        }
+        for g in groups
     ]
 
 
@@ -97,6 +145,7 @@ def _serialize_users(users):
 
 
 def _serialize_notifications(notifications):
+    group_map = {g.id: g.name for g in DriverGroup.query.all()}
     return [
         {
             "id": n.id,
@@ -107,6 +156,8 @@ def _serialize_notifications(notifications):
             "unit_name": n.unit.name if n.unit else None,
             "driver_id": n.driver_id,
             "driver_name": n.driver.full_name if n.driver else None,
+            "driver_group_id": n.driver_group_id,
+            "driver_group_name": group_map.get(n.driver_group_id),
             "created_by_user_id": n.created_by_user_id,
             "created_by_username": n.created_by_user.username if n.created_by_user else None,
             "created_at": n.created_at.isoformat() if n.created_at else None,
@@ -117,22 +168,32 @@ def _serialize_notifications(notifications):
 
 def _admin_identity_from_session():
     token = session.get(LOGIN_SESSION_KEY)
-    if not token:
+    claims = _admin_claims_from_token(token)
+    if claims is not None:
+        return claims
+
+    refresh_token = session.get(REFRESH_SESSION_KEY)
+    refresh_claims = _admin_claims_from_token(refresh_token)
+    if refresh_claims is None:
         return None
 
-    try:
-        payload = decode_token(token)
-    except Exception:
+    user_id = refresh_claims.get("id")
+    sub = refresh_claims.get("sub")
+    if not user_id or not sub:
         return None
 
-    role = payload.get("role")
-    if role != "admin":
-        return None
-    return {
-        "id": payload.get("user_id"),
-        "role": role,
-        "sub": payload.get("sub"),
-    }
+    new_access_token = create_access_token(
+        identity=str(sub),
+        additional_claims={"role": "admin", "user_id": user_id},
+    )
+    new_refresh_token = create_refresh_token(
+        identity=str(sub),
+        additional_claims={"role": "admin", "user_id": user_id},
+    )
+
+    session[LOGIN_SESSION_KEY] = new_access_token
+    session[REFRESH_SESSION_KEY] = new_refresh_token
+    return _admin_claims_from_token(new_access_token)
 
 
 def _extract_admin_claims_from_bearer():
@@ -143,19 +204,7 @@ def _extract_admin_claims_from_bearer():
     if not token:
         return None
 
-    try:
-        payload = decode_token(token)
-    except Exception:
-        return None
-
-    role = payload.get("role")
-    if role != "admin":
-        return None
-    return {
-        "id": payload.get("user_id"),
-        "role": role,
-        "sub": payload.get("sub"),
-    }
+    return _admin_claims_from_token(token)
 
 
 def _require_admin_api():
@@ -227,6 +276,7 @@ def admin_dataset():
     vehicles = Vehicle.query.order_by(Vehicle.id.asc()).all()
     documents = Document.query.order_by(Document.id.asc()).all()
     users = User.query.order_by(User.id.asc()).all()
+    groups = DriverGroup.query.order_by(DriverGroup.id.asc()).all()
 
     notifications = _safe_list_notifications()
 
@@ -237,9 +287,36 @@ def admin_dataset():
             "vehicles": _serialize_vehicles(vehicles),
             "documents": _serialize_documents(documents),
             "users": _serialize_users(users),
+            "groups": _serialize_groups(groups),
             "notifications": _serialize_notifications(notifications),
         }
     )
+
+
+@api_bp.get("/fines/lookup")
+def admin_fines_lookup():
+    _claims, error_response = _require_admin_api()
+    if error_response:
+        return error_response
+
+    license_plate = (request.args.get("licensePlate") or "").strip().upper()
+    if not license_plate:
+        return jsonify({"error": "licensePlate is required"}), 400
+
+    try:
+        result = lookup_fines(license_plate)
+        return jsonify(
+            {
+                "licensePlate": result.license_plate,
+                "violations": result.violations,
+            }
+        )
+    except RequestException:
+        return jsonify({"error": "Không kết nối được trang tra cứu CSGT"}), 502
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 502
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @api_bp.get("/notifications")
@@ -264,23 +341,32 @@ def create_notification():
     target_type = (data.get("target_type") or "all").strip().lower()
     unit_id = _parse_int(data.get("unit_id"))
     driver_id = _parse_int(data.get("driver_id"))
+    driver_group_id = _parse_int(data.get("driver_group_id"))
 
     if not title or not message:
         return jsonify({"error": "Missing title or message"}), 400
-    if target_type not in {"all", "group", "driver"}:
+    if target_type not in {"all", "htx", "group", "driver"}:
         return jsonify({"error": "Invalid target_type"}), 400
 
-    if target_type == "group":
+    if target_type == "htx":
         if not unit_id or not Unit.query.get(unit_id):
             return jsonify({"error": "Unit not found"}), 404
+        driver_id = None
+        driver_group_id = None
+    elif target_type == "group":
+        if not driver_group_id or not DriverGroup.query.get(driver_group_id):
+            return jsonify({"error": "Driver group not found"}), 404
+        unit_id = None
         driver_id = None
     elif target_type == "driver":
         if not driver_id or not Driver.query.get(driver_id):
             return jsonify({"error": "Driver not found"}), 404
         unit_id = None
+        driver_group_id = None
     else:
         unit_id = None
         driver_id = None
+        driver_group_id = None
 
     notification = Notification(
         title=title,
@@ -288,6 +374,7 @@ def create_notification():
         target_type=target_type,
         unit_id=unit_id,
         driver_id=driver_id,
+        driver_group_id=driver_group_id,
         created_by_user_id=(claims or {}).get("id"),
     )
     try:
@@ -312,6 +399,62 @@ def delete_notification(notification_id):
     except SQLAlchemyError:
         db.session.rollback()
         return jsonify({"error": "Notifications table is not ready"}), 503
+    return jsonify({"ok": True})
+
+
+@api_bp.post("/groups")
+def create_group():
+    _claims, error_response = _require_admin_api()
+    if error_response:
+        return error_response
+
+    data = request.get_json() or {}
+    name = (data.get("name") or "").strip()
+    description = (data.get("description") or "").strip()
+    if not name:
+        return jsonify({"error": "Missing name"}), 400
+    if DriverGroup.query.filter_by(name=name).first():
+        return jsonify({"error": "Group name exists"}), 409
+
+    group = DriverGroup(name=name, description=description or None)
+    db.session.add(group)
+    db.session.commit()
+    return jsonify({"id": group.id}), 201
+
+
+@api_bp.put("/groups/<int:group_id>")
+def update_group(group_id):
+    _claims, error_response = _require_admin_api()
+    if error_response:
+        return error_response
+
+    group = DriverGroup.query.get_or_404(group_id)
+    data = request.get_json() or {}
+    if "name" in data:
+        name = (data.get("name") or "").strip()
+        if not name:
+            return jsonify({"error": "Name cannot be empty"}), 400
+        exists = DriverGroup.query.filter(DriverGroup.name == name, DriverGroup.id != group.id).first()
+        if exists:
+            return jsonify({"error": "Group name exists"}), 409
+        group.name = name
+    if "description" in data:
+        group.description = (data.get("description") or "").strip() or None
+
+    db.session.commit()
+    return jsonify({"id": group.id})
+
+
+@api_bp.delete("/groups/<int:group_id>")
+def delete_group(group_id):
+    _claims, error_response = _require_admin_api()
+    if error_response:
+        return error_response
+
+    group = DriverGroup.query.get_or_404(group_id)
+    Driver.query.filter_by(group_id=group.id).update({"group_id": None})
+    db.session.delete(group)
+    db.session.commit()
     return jsonify({"ok": True})
 
 
@@ -406,11 +549,19 @@ def admin_login():
     if not user or user.role != "admin" or not user.check_password(password):
         return render_template("admin/login.html", error="Sai tài khoản hoặc mật khẩu"), 401
 
+    claims = {"role": user.role, "user_id": user.id}
     token = create_access_token(
         identity=str(user.id),
-        additional_claims={"role": user.role, "user_id": user.id},
+        additional_claims=claims,
     )
+    refresh_token = create_refresh_token(
+        identity=str(user.id),
+        additional_claims=claims,
+    )
+
+    session.permanent = True
     session[LOGIN_SESSION_KEY] = token
+    session[REFRESH_SESSION_KEY] = refresh_token
     session["admin_username"] = user.username
 
     return redirect(url_for("admin_ui.admin_dashboard"))
@@ -419,6 +570,7 @@ def admin_login():
 @ui_bp.get("/logout")
 def admin_logout():
     session.pop(LOGIN_SESSION_KEY, None)
+    session.pop(REFRESH_SESSION_KEY, None)
     session.pop("admin_username", None)
     return redirect(url_for("admin_ui.admin_login"))
 
@@ -437,3 +589,11 @@ def admin_dashboard():
         admin_api_base=api_base,
         admin_username=session.get("admin_username", "admin"),
     )
+
+
+@ui_bp.get("/token")
+def admin_token():
+    claims = _admin_identity_from_session()
+    if claims is None:
+        return jsonify({"error": "Session expired"}), 401
+    return jsonify({"token": session.get(LOGIN_SESSION_KEY)})

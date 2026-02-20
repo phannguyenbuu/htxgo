@@ -1,11 +1,21 @@
-﻿from flask import Blueprint, jsonify, request
-from flask_jwt_extended import create_access_token
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
 
 from .. import db
-from ..models import User, Driver
+from ..models import Driver, User
 
 
 bp = Blueprint("auth", __name__)
+
+
+def _build_user_claims(user: User) -> dict:
+    return {"role": user.role, "user_id": user.id}
 
 
 @bp.post("/login")
@@ -20,11 +30,40 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    token = create_access_token(
-        identity=str(user.id),
-        additional_claims={"role": user.role, "user_id": user.id},
+    claims = _build_user_claims(user)
+    access_token = create_access_token(identity=str(user.id), additional_claims=claims)
+    refresh_token = create_refresh_token(identity=str(user.id), additional_claims=claims)
+    return jsonify(
+        {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "role": user.role,
+            "user_id": user.id,
+        }
     )
-    return jsonify({"access_token": token, "role": user.role, "user_id": user.id})
+
+
+@bp.post("/refresh")
+@jwt_required(refresh=True)
+def refresh():
+    identity = get_jwt_identity()
+    token_claims = get_jwt()
+    try:
+        user_id = int(identity)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid token subject"}), 401
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    claims = {
+        "role": token_claims.get("role") or user.role,
+        "user_id": token_claims.get("user_id") or user.id,
+    }
+    access_token = create_access_token(identity=str(user.id), additional_claims=claims)
+    refresh_token = create_refresh_token(identity=str(user.id), additional_claims=claims)
+    return jsonify({"access_token": access_token, "refresh_token": refresh_token})
 
 
 @bp.post("/register-driver")

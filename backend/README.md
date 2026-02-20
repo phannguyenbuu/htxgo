@@ -39,6 +39,12 @@ Seed credentials:
 - POST `/api/auth/register-admin`
 - POST `/api/auth/register-driver`
 - POST `/api/auth/login`
+- POST `/api/auth/refresh` (Authorization: `Bearer <refresh_token>`)
+
+Default token/session lifetime (can override via env):
+- `JWT_ACCESS_TOKEN_EXPIRES_MINUTES=60`
+- `JWT_REFRESH_TOKEN_EXPIRES_DAYS=30`
+- `ADMIN_SESSION_LIFETIME_DAYS=30`
 
 ## Admin Dashboard (Flask)
 - Login page: `/admin/login`
