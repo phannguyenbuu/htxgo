@@ -6,7 +6,7 @@ app = create_app()
 
 
 with app.app_context():
-    units = [
+    units_to_seed = [
         ("HTX1", False),
         ("HTX2", False),
         ("HTX3", False),
@@ -15,9 +15,18 @@ with app.app_context():
         ("HTX-virtual", True),
     ]
 
-    for name, is_virtual in units:
-        if not Unit.query.filter_by(name=name).first():
-            db.session.add(Unit(name=name, is_virtual=is_virtual))
+    # Get all existing unit names in a single query for efficiency
+    existing_unit_names = {unit.name for unit in Unit.query.with_entities(Unit.name).all()}
 
-    db.session.commit()
-    print("Seeded units")
+    new_units = [
+        Unit(name=name, is_virtual=is_virtual)
+        for name, is_virtual in units_to_seed
+        if name not in existing_unit_names
+    ]
+
+    if new_units:
+        db.session.add_all(new_units)
+        db.session.commit()
+        print(f"Seeded {len(new_units)} new units.")
+    else:
+        print("All units already exist in the database.")

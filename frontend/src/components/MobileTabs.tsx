@@ -119,7 +119,7 @@ export default function MobileTabs() {
                 <div className="modal-label">Phù hiệu</div>
               </button>
               <button className="modal-card" onClick={() => go("/documents/bao-hiem")}>
-                <img src={asset("tab-insurance.svg")} alt="" className="modal-icon" />
+                <img src={asset("6.jpg")} alt="" className="modal-icon" />
                 <div className="modal-label">Bảo hiểm</div>
               </button>
             </div>

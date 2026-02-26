@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+﻿﻿import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { asset } from "../assets";
@@ -134,7 +134,7 @@ export default function MobileHeader({ scrollDots: _scrollDots }: MobileHeaderPr
           <button className="brand brand-btn" onClick={goHome} aria-label="Về trang chủ">
             <img src={asset("1.png")} alt="" className="brand-logo" />
             <div className="brand-copy">
-              <div className="brand-title">TRỢ LÝ VICA</div>
+              <div className="brand-title">TRỢ LÝ VYCA</div>
               <div className="brand-sub">AI Agent của tài xế công nghệ</div>
             </div>
           </button>

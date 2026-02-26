@@ -11,7 +11,7 @@ const primaryCards = [
 const serviceCards = [
   { to: "/more/transport", title: "Lệnh vận chuyển", image: asset("4.png") },
   { to: "/documents/phu-hieu", title: "Phù hiệu", image: asset("5.png") },
-  { to: "/documents/bao-hiem", title: "Bảo hiểm", image: asset("tab-insurance.svg") },
+  { to: "/documents/bao-hiem", title: "Bảo hiểm", image: asset("6.png") },
   { to: "/more/phat-nguoi", title: "Phạt nguội", image: asset("8.png") },
   { to: "/more/vetc", title: "Trợ lý AI Vyca", image: asset("7.png") },
   { to: "/more/contact", title: "Liên hệ", image: asset("more-contact.svg") },

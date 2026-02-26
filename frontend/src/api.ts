@@ -1,7 +1,6 @@
-﻿const runtimeDefaultApiBase =
-  typeof window !== "undefined" ? `${window.location.origin}/api` : "/api";
-
-const API_BASE = (import.meta.env.VITE_API_BASE || runtimeDefaultApiBase).replace(/\/+$/, "");
+const runtimeOrigin = typeof window !== "undefined" ? window.location.origin : "";
+const rawApiBase = (import.meta.env.VITE_API_BASE || runtimeOrigin).replace(/\/+$/, "");
+const API_BASE = rawApiBase ? (rawApiBase.endsWith("/api") ? rawApiBase : `${rawApiBase}/api`) : "/api";
 
 export function getToken() {
   return localStorage.getItem("dpaper_token");
@@ -89,7 +88,7 @@ async function request(path: string, options: RequestInit = {}, retryOn401 = tru
       if (typeof window !== "undefined" && window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
-      throw new ApiError("Phiên đăng nhập đã hết hạn", 401);
+      throw new ApiError("Phi�n dang nh?p d� h?t h?n", 401);
     }
     const body = await res.json().catch(() => ({}));
     throw new ApiError(body.error || `Request failed: ${res.status}`, res.status);

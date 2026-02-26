@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿﻿import { useState } from "react";
 import { ApiError, api, setAuthTokens } from "../api";
 import { asset } from "../assets";
 
@@ -33,7 +33,7 @@ export default function LoginPage() {
         <div className="brand-line login-brand-line">
           <img src={asset("1.png")} alt="" className="brand-logo" />
           <div className="login-brand-copy">
-            <div className="brand-title">TRỢ LÝ VICA</div>
+            <div className="brand-title">TRỢ LÝ VYCA</div>
             <div className="brand-sub">AI Agent của tài xế công nghệ</div>
           </div>
         </div>
@@ -103,4 +103,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
